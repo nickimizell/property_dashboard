@@ -21,6 +21,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({ onClose, onSave, pro
     currentListPrice: property?.currentListPrice || '',
     status: property?.status || 'Active',
     propertyType: property?.propertyType || 'Single Family',
+    workflowType: property?.workflowType || 'Conventional',
     isRented: property?.isRented || false,
     notes: property?.notes || '',
     coordinates: property?.coordinates || { lat: 39.7817, lng: -89.6501 },
@@ -228,8 +229,8 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({ onClose, onSave, pro
             </div>
           </div>
 
-          {/* Status and Property Type */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Status, Property Type, and Workflow Type */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Status *
@@ -264,6 +265,42 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({ onClose, onSave, pro
                 <option value="Rental">Rental</option>
                 <option value="Commercial">Commercial</option>
               </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Workflow Type *
+              </label>
+              <select
+                name="workflowType"
+                value={formData.workflowType}
+                onChange={handleChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="Conventional">Conventional Seller</option>
+                <option value="Investor">Investor Seller</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Workflow Type Description */}
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-blue-800">Workflow Information</h3>
+                <div className="mt-2 text-sm text-blue-700">
+                  {formData.workflowType === 'Conventional' ? (
+                    <p><strong>Conventional Seller:</strong> Standard real estate process with 40+ tasks including listing prep, contract management, and closing coordination.</p>
+                  ) : (
+                    <p><strong>Investor Seller:</strong> Specialized workflow for investment properties with 41+ tasks including key management, NOIS notices, and investor-specific requirements.</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
