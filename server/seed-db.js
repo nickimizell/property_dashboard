@@ -33,8 +33,12 @@ async function seedDatabase() {
       console.log(`📊 Found ${propertyCount} properties in database`);
       
       if (propertyCount > 0) {
-        console.log('🎯 Database is already populated with data');
-        return;
+        console.log('🔄 Database has data but forcing re-seed with latest Trident Properties...');
+        // Clear existing data to insert fresh Trident Properties
+        await client.query('DELETE FROM tasks');
+        await client.query('DELETE FROM contingency_dates');  
+        await client.query('DELETE FROM properties');
+        console.log('🗑️ Cleared existing data for fresh import');
       }
     }
 

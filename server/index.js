@@ -396,6 +396,18 @@ app.put('/api/tasks/:id/complete', async (req, res) => {
   }
 });
 
+// Database management endpoints
+app.post('/api/database/reseed', async (req, res) => {
+  try {
+    console.log('🔄 Manual database re-seed triggered...');
+    await seedDatabase();
+    res.json({ success: true, message: 'Database re-seeded successfully with Trident Properties' });
+  } catch (err) {
+    console.error('Manual re-seed error:', err);
+    res.status(500).json({ error: 'Failed to re-seed database' });
+  }
+});
+
 // Geocoding endpoints
 app.post('/api/geocode/batch', async (req, res) => {
   try {
