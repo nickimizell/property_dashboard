@@ -8,6 +8,7 @@ import { PropertyForm } from './PropertyForm';
 import { PropertyDetail } from './PropertyDetail';
 import { StatsCards } from './StatsCards';
 import { SearchAndFilter, PropertyFilters } from './SearchAndFilter';
+import { TransactionCoordinator } from './TransactionCoordinator';
 import { Plus, Map, List, BarChart3 } from 'lucide-react';
 
 interface DashboardProps {
@@ -25,6 +26,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ properties, tasks, onPrope
   const [filteredProperties, setFilteredProperties] = useState<Property[]>(properties);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<PropertyFilters>({});
+  const [transactionCoordinator, setTransactionCoordinator] = useState<{
+    property: Property;
+    mode: 'documents' | 'parties' | 'workflow' | 'timeline';
+  } | null>(null);
 
   // Update filtered properties when properties, search, or filters change
   useEffect(() => {
@@ -119,6 +124,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ properties, tasks, onPrope
 
   const handlePropertyClick = (property: Property) => {
     setSelectedProperty(property);
+  };
+
+  const handleTransactionAction = (action: string, property: Property) => {
+    console.log(`Transaction action: ${action} for property: ${property.address}`);
+    
+    // Set the transaction coordinator modal with the selected property and mode
+    setTransactionCoordinator({
+      property,
+      mode: action as 'documents' | 'parties' | 'workflow' | 'timeline'
+    });
   };
 
   return (
@@ -223,6 +238,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ properties, tasks, onPrope
                   property={property}
                   outstandingTasks={getOutstandingTasksCount(property.id)}
                   onClick={() => handlePropertyClick(property)}
+                  onTransactionAction={handleTransactionAction}
                 />
               ))}
               {filteredProperties.length === 0 && (
@@ -282,6 +298,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ properties, tasks, onPrope
               alert('Failed to update property. Please try again.');
             }
           }}
+        />
+      )}
+
+      {transactionCoordinator && (
+        <TransactionCoordinator
+          property={transactionCoordinator.property}
+          mode={transactionCoordinator.mode}
+          onClose={() => setTransactionCoordinator(null)}
         />
       )}
     </div>

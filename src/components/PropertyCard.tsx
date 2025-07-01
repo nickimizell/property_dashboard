@@ -1,17 +1,19 @@
 import React from 'react';
 import { Property } from '../types';
-import { MapPin, User, DollarSign, Calendar, AlertCircle, TrendingDown, TrendingUp, Clock, Building } from 'lucide-react';
+import { MapPin, User, DollarSign, Calendar, AlertCircle, TrendingDown, TrendingUp, Clock, Building, FileText, Users, CheckSquare, CalendarPlus } from 'lucide-react';
 
 interface PropertyCardProps {
   property: Property;
   outstandingTasks: number;
   onClick: () => void;
+  onTransactionAction?: (action: string, property: Property) => void;
 }
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({ 
   property, 
   outstandingTasks, 
-  onClick 
+  onClick,
+  onTransactionAction
 }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -229,12 +231,68 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       </div>
 
       {/* Property Type */}
-      <div className="pt-3 border-t border-gray-100">
+      <div className="pt-3 border-t border-gray-100 mb-4">
         <span className="text-xs text-gray-500 uppercase tracking-wide">
           {property.propertyType}
           {property.isRented && ' • Rented'}
         </span>
       </div>
+
+      {/* Transaction Coordinator Actions */}
+      {onTransactionAction && (
+        <div className="border-t border-gray-100 pt-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-gray-700 uppercase tracking-wide">
+              Transaction Tools
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onTransactionAction('documents', property);
+              }}
+              className="flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors"
+            >
+              <FileText className="h-3 w-3" />
+              <span>Docs</span>
+            </button>
+            
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onTransactionAction('parties', property);
+              }}
+              className="flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors"
+            >
+              <Users className="h-3 w-3" />
+              <span>Parties</span>
+            </button>
+            
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onTransactionAction('workflow', property);
+              }}
+              className="flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors"
+            >
+              <CheckSquare className="h-3 w-3" />
+              <span>Workflow</span>
+            </button>
+            
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onTransactionAction('timeline', property);
+              }}
+              className="flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors"
+            >
+              <CalendarPlus className="h-3 w-3" />
+              <span>Timeline</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
