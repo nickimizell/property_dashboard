@@ -1,0 +1,17 @@
+1. Click "New +" → "Web Service"
+  2. Connect Repository: nickimizell/property_dashboard
+  3. Configuration:
+    - Name: ootb-property-dashboard
+    - Runtime: Node
+    - Build Command: npm install && npm run build
+    - Start Command: npx serve -s dist -l 10000
+    - Plan: Free
+
+  4. Environment Variables
+
+  Add these environment variables to your web service:
+  DATABASE_URL=<your-postgres-internal-url>
+  NODE_ENV=production
+
+  💾 Let me prepare the backend integration
+
