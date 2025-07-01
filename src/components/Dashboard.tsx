@@ -1,0 +1,269 @@
+import React, { useState, useEffect } from 'react';
+import { Property, Task, DashboardStats } from '../types';
+import { dataService } from '../services/dataService';
+import { PropertyCard } from './PropertyCard';
+import { MapView } from './MapView';
+import { TaskList } from './TaskList';
+import { PropertyForm } from './PropertyForm';
+import { PropertyDetail } from './PropertyDetail';
+import { StatsCards } from './StatsCards';
+import { SearchAndFilter, PropertyFilters } from './SearchAndFilter';
+import { Plus, Map, List, BarChart3 } from 'lucide-react';
+
+interface DashboardProps {
+  properties: Property[];
+  tasks: Task[];
+  onPropertyUpdate: () => void;
+  onTaskUpdate: () => void;
+}
+
+export const Dashboard: React.FC<DashboardProps> = ({ properties, tasks, onPropertyUpdate, onTaskUpdate }) => {
+  const [view, setView] = useState<'grid' | 'map' | 'tasks'>('grid');
+  const [showPropertyForm, setShowPropertyForm] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>(properties);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilters, setActiveFilters] = useState<PropertyFilters>({});
+
+  // Update filtered properties when properties, search, or filters change
+  useEffect(() => {
+    let result = properties;
+
+    // Apply search first
+    if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase();
+      result = result.filter(property => 
+        property.address.toLowerCase().includes(searchLower) ||
+        property.clientName.toLowerCase().includes(searchLower) ||
+        property.sellingAgent.toLowerCase().includes(searchLower) ||
+        property.notes.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Then apply filters
+    if (Object.keys(activeFilters).length > 0) {
+      if (activeFilters.status && activeFilters.status.length > 0) {
+        result = result.filter(p => activeFilters.status!.includes(p.status));
+      }
+
+      if (activeFilters.propertyType && activeFilters.propertyType.length > 0) {
+        result = result.filter(p => activeFilters.propertyType!.includes(p.propertyType));
+      }
+
+      if (activeFilters.isRented !== undefined) {
+        result = result.filter(p => p.isRented === activeFilters.isRented);
+      }
+
+      if (activeFilters.priceRange) {
+        result = result.filter(p => {
+          const price = p.currentListPrice || p.startingListPrice || 0;
+          const min = activeFilters.priceRange!.min || 0;
+          const max = activeFilters.priceRange!.max || Infinity;
+          return price >= min && price <= max;
+        });
+      }
+    }
+
+    setFilteredProperties(result);
+  }, [properties, searchQuery, activeFilters]);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const handleFilter = (filters: PropertyFilters) => {
+    setActiveFilters(filters);
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setActiveFilters({});
+    setFilteredProperties(properties);
+  };
+
+  const calculateStats = (): DashboardStats => {
+    const totalProperties = properties.length;
+    const activeListings = properties.filter(p => p.status === 'Active').length;
+    const underContract = properties.filter(p => p.status === 'Under Contract').length;
+    const pendingTasks = tasks.filter(t => t.status === 'Pending').length;
+    const urgentTasks = tasks.filter(t => t.priority === 'Urgent' && t.status !== 'Completed').length;
+    
+    const closedProperties = properties.filter(p => p.status === 'Closed');
+    const avgDaysToClose = closedProperties.length > 0 
+      ? closedProperties.reduce((sum, p) => {
+          const created = new Date(p.createdAt);
+          const updated = new Date(p.updatedAt);
+          return sum + (updated.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
+        }, 0) / closedProperties.length
+      : 0;
+
+    return {
+      totalProperties,
+      activeListings,
+      underContract,
+      pendingTasks,
+      urgentTasks,
+      avgDaysToClose: Math.round(avgDaysToClose)
+    };
+  };
+
+  const stats = calculateStats();
+
+  const getOutstandingTasksCount = (propertyId: string): number => {
+    return tasks.filter(task => 
+      task.propertyId === propertyId && 
+      task.status !== 'Completed'
+    ).length;
+  };
+
+  const handlePropertyClick = (property: Property) => {
+    setSelectedProperty(property);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Property Management Dashboard</h1>
+              <p className="text-sm text-gray-600">Real Estate Portfolio Overview</p>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {/* View Toggle */}
+              <div className="flex rounded-lg bg-gray-100 p-1">
+                <button
+                  onClick={() => setView('grid')}
+                  className={`p-2 rounded-md transition-colors ${
+                    view === 'grid' 
+                      ? 'bg-white text-blue-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <BarChart3 className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setView('map')}
+                  className={`p-2 rounded-md transition-colors ${
+                    view === 'map' 
+                      ? 'bg-white text-blue-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Map className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setView('tasks')}
+                  className={`p-2 rounded-md transition-colors ${
+                    view === 'tasks' 
+                      ? 'bg-white text-blue-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <List className="h-4 w-4" />
+                </button>
+              </div>
+              
+              {/* Add Property Button */}
+              <button
+                onClick={() => setShowPropertyForm(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add Property</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats Cards */}
+        <StatsCards stats={stats} />
+
+        {/* Search and Filter */}
+        {view !== 'tasks' && (
+          <SearchAndFilter
+            onSearch={handleSearch}
+            onFilter={handleFilter}
+            onClear={handleClearFilters}
+          />
+        )}
+
+        {/* Content based on view */}
+        {view === 'grid' && (
+          <div className="mt-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Properties Overview
+                {filteredProperties.length !== properties.length && (
+                  <span className="ml-2 text-sm text-gray-500">
+                    ({filteredProperties.length} of {properties.length} properties)
+                  </span>
+                )}
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProperties.map((property) => (
+                <PropertyCard
+                  key={property.id}
+                  property={property}
+                  outstandingTasks={getOutstandingTasksCount(property.id)}
+                  onClick={() => handlePropertyClick(property)}
+                />
+              ))}
+              {filteredProperties.length === 0 && (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-gray-500">No properties match the current search or filters.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {view === 'map' && (
+          <div className="mt-8">
+            <MapView 
+              properties={filteredProperties} 
+              onPropertyClick={handlePropertyClick}
+              getOutstandingTasksCount={getOutstandingTasksCount}
+            />
+          </div>
+        )}
+
+        {view === 'tasks' && (
+          <div className="mt-8">
+            <TaskList tasks={tasks} properties={properties} onTaskUpdate={onTaskUpdate} />
+          </div>
+        )}
+      </main>
+
+      {/* Modals */}
+      {showPropertyForm && (
+        <PropertyForm
+          onClose={() => setShowPropertyForm(false)}
+          onSave={(property) => {
+            dataService.createProperty(property);
+            onPropertyUpdate();
+            setShowPropertyForm(false);
+          }}
+        />
+      )}
+
+      {selectedProperty && (
+        <PropertyDetail
+          property={selectedProperty}
+          onClose={() => setSelectedProperty(null)}
+          onSave={(updatedProperty) => {
+            dataService.updateProperty(selectedProperty.id, updatedProperty);
+            onPropertyUpdate();
+            setSelectedProperty(null);
+          }}
+        />
+      )}
+    </div>
+  );
+};
