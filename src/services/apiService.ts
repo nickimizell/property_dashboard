@@ -14,6 +14,20 @@ class ApiService {
     return ApiService.instance;
   }
 
+  // Get authentication headers
+  private getAuthHeaders(): Record<string, string> {
+    const token = localStorage.getItem('auth_token');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return headers;
+  }
+
   // Health check
   async healthCheck(): Promise<boolean> {
     try {
@@ -28,7 +42,9 @@ class ApiService {
   // Properties API
   async getAllProperties(): Promise<Property[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/properties`);
+      const response = await fetch(`${API_BASE_URL}/api/properties`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) throw new Error('Failed to fetch properties');
       return await response.json();
     } catch (error) {
@@ -39,7 +55,9 @@ class ApiService {
 
   async getPropertyById(id: string): Promise<Property> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/properties/${id}`);
+      const response = await fetch(`${API_BASE_URL}/api/properties/${id}`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) throw new Error('Property not found');
       return await response.json();
     } catch (error) {
@@ -52,9 +70,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE_URL}/api/properties`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(property),
       });
       if (!response.ok) throw new Error('Failed to create property');
@@ -69,9 +85,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE_URL}/api/properties/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(updates),
       });
       if (!response.ok) throw new Error('Failed to update property');
@@ -86,6 +100,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE_URL}/api/properties/${id}`, {
         method: 'DELETE',
+        headers: this.getAuthHeaders(),
       });
       return response.ok;
     } catch (error) {
@@ -97,7 +112,9 @@ class ApiService {
   // Tasks API
   async getAllTasks(): Promise<Task[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tasks`);
+      const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) throw new Error('Failed to fetch tasks');
       return await response.json();
     } catch (error) {
@@ -108,7 +125,9 @@ class ApiService {
 
   async getTasksByPropertyId(propertyId: string): Promise<Task[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tasks?propertyId=${propertyId}`);
+      const response = await fetch(`${API_BASE_URL}/api/tasks?propertyId=${propertyId}`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) throw new Error('Failed to fetch tasks');
       return await response.json();
     } catch (error) {
@@ -121,9 +140,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}/complete`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify({ completionNotes }),
       });
       if (!response.ok) throw new Error('Failed to complete task');
@@ -139,9 +156,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE_URL}/api/tasks`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(task),
       });
       if (!response.ok) throw new Error('Failed to create task');
@@ -155,7 +170,9 @@ class ApiService {
   // Search API
   async searchProperties(query: string): Promise<Property[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/properties?search=${encodeURIComponent(query)}`);
+      const response = await fetch(`${API_BASE_URL}/api/properties?search=${encodeURIComponent(query)}`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) throw new Error('Search failed');
       return await response.json();
     } catch (error) {
@@ -167,7 +184,9 @@ class ApiService {
   // Dashboard stats
   async getDashboardStats(): Promise<any> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/dashboard/stats`);
+      const response = await fetch(`${API_BASE_URL}/api/dashboard/stats`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) throw new Error('Failed to fetch stats');
       return await response.json();
     } catch (error) {

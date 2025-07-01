@@ -4,6 +4,7 @@ const path = require('path');
 const { Pool } = require('pg');
 const { seedDatabase } = require('./seed-db');
 const { updatePropertyCoordinates, geocodeAddress } = require('./geocoding');
+const { hashPassword, comparePassword, generateToken, authenticateToken, requireRole } = require('./auth');
 require('dotenv').config();
 
 const app = express();
@@ -424,6 +425,209 @@ app.post('/api/database/reseed', async (req, res) => {
   } catch (err) {
     console.error('Manual re-seed error:', err);
     res.status(500).json({ error: 'Failed to re-seed database' });
+  }
+});
+
+// Authentication endpoints
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    // Find user by username or email
+    const result = await pool.query(
+      'SELECT * FROM users WHERE (username = $1 OR email = $1) AND is_active = true',
+      [username]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const user = result.rows[0];
+
+    // Check password
+    const isValidPassword = await comparePassword(password, user.password_hash);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Update last login
+    await pool.query(
+      'UPDATE users SET last_login = NOW() WHERE id = $1',
+      [user.id]
+    );
+
+    // Generate token
+    const token = generateToken({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role
+    });
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      }
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Failed to login' });
+  }
+});
+
+// Get current user (protected route)
+app.get('/api/auth/me', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, username, email, name, role, last_login, created_at FROM users WHERE id = $1',
+      [req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Get user error:', err);
+    res.status(500).json({ error: 'Failed to get user' });
+  }
+});
+
+// Get all users (admin only)
+app.get('/api/users', authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, username, email, name, role, is_active, last_login, created_at FROM users ORDER BY created_at DESC'
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Get users error:', err);
+    res.status(500).json({ error: 'Failed to get users' });
+  }
+});
+
+// Create user (admin only)
+app.post('/api/users', authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const { username, email, password, name, role } = req.body;
+
+    if (!username || !email || !password || !name) {
+      return res.status(400).json({ error: 'Username, email, password, and name are required' });
+    }
+
+    // Check if username or email already exists
+    const existingUser = await pool.query(
+      'SELECT id FROM users WHERE username = $1 OR email = $2',
+      [username, email]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(409).json({ error: 'Username or email already exists' });
+    }
+
+    // Hash password
+    const passwordHash = await hashPassword(password);
+
+    // Create user
+    const result = await pool.query(`
+      INSERT INTO users (username, email, password_hash, name, role)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, username, email, name, role, is_active, created_at
+    `, [username, email, passwordHash, name, role || 'Agent']);
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Create user error:', err);
+    res.status(500).json({ error: 'Failed to create user' });
+  }
+});
+
+// Update user password
+app.put('/api/users/:id/password', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { currentPassword, newPassword } = req.body;
+
+    // Users can only change their own password unless they're admin
+    if (req.user.id !== id && req.user.role !== 'Admin') {
+      return res.status(403).json({ error: 'Not authorized to change this password' });
+    }
+
+    if (!newPassword) {
+      return res.status(400).json({ error: 'New password is required' });
+    }
+
+    // If not admin, verify current password
+    if (req.user.id === id && req.user.role !== 'Admin') {
+      if (!currentPassword) {
+        return res.status(400).json({ error: 'Current password is required' });
+      }
+
+      const user = await pool.query('SELECT password_hash FROM users WHERE id = $1', [id]);
+      if (user.rows.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const isValidPassword = await comparePassword(currentPassword, user.rows[0].password_hash);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: 'Current password is incorrect' });
+      }
+    }
+
+    // Hash new password
+    const passwordHash = await hashPassword(newPassword);
+
+    // Update password
+    await pool.query(
+      'UPDATE users SET password_hash = $1, password_changed_at = NOW() WHERE id = $2',
+      [passwordHash, id]
+    );
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error('Update password error:', err);
+    res.status(500).json({ error: 'Failed to update password' });
+  }
+});
+
+// Update user (admin only)
+app.put('/api/users/:id', authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username, email, name, role, is_active } = req.body;
+
+    const result = await pool.query(`
+      UPDATE users SET
+        username = COALESCE($1, username),
+        email = COALESCE($2, email),
+        name = COALESCE($3, name),
+        role = COALESCE($4, role),
+        is_active = COALESCE($5, is_active),
+        updated_at = NOW()
+      WHERE id = $6
+      RETURNING id, username, email, name, role, is_active, created_at, updated_at
+    `, [username, email, name, role, is_active, id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Update user error:', err);
+    res.status(500).json({ error: 'Failed to update user' });
   }
 });
 

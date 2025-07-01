@@ -61,13 +61,17 @@ CREATE TABLE tasks (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Users table (for future team management)
+-- Users table (for authentication and team management)
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
     name TEXT NOT NULL,
-    role TEXT NOT NULL CHECK (role IN ('Admin', 'Agent', 'Viewer')),
+    role TEXT NOT NULL CHECK (role IN ('Admin', 'Agent', 'Viewer')) DEFAULT 'Agent',
     is_active BOOLEAN DEFAULT TRUE,
+    last_login TIMESTAMP WITH TIME ZONE,
+    password_changed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -214,6 +218,29 @@ INSERT INTO tasks (
     'under-contract',
     'Michael Chen',
     FALSE
+);
+
+-- Insert default users (password is 'training1' hashed with bcrypt)
+INSERT INTO users (
+    id, username, email, password_hash, name, role, is_active
+) VALUES 
+(
+    '550e8400-e29b-41d4-a716-446655440401',
+    'mattmizell',
+    'matt.mizell@gmail.com',
+    '$2b$12$LQv3c1yqBwEHFAwKnzaOOeXYLZ8hT0G2UqK7eCj/YOEhXXNkHBZvy',
+    'Matt Mizell',
+    'Admin',
+    TRUE
+),
+(
+    '550e8400-e29b-41d4-a716-446655440402',
+    'nickimizell',
+    'nicki@outofthebox.properties',
+    '$2b$12$LQv3c1yqBwEHFAwKnzaOOeXYLZ8hT0G2UqK7eCj/YOEhXXNkHBZvy',
+    'Nicki Mizell',
+    'Admin',
+    TRUE
 );
 
 -- Create a view for dashboard statistics
