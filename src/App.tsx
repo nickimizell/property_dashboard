@@ -1,37 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import { Dashboard } from './components/Dashboard';
 import { Property, Task } from './types';
-import { dataService } from './services/dataService';
+import { hybridDataService } from './services/hybridDataService';
 
 function App() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<'api' | 'localStorage'>('localStorage');
 
   useEffect(() => {
     // Load data and generate any needed price review tasks
-    const loadData = () => {
-      const allProperties = dataService.getAllProperties();
-      const allTasks = dataService.getAllTasks();
-      
-      // Generate price review tasks automatically
-      dataService.generatePriceReviewTasks();
-      
-      setProperties(allProperties);
-      setTasks(dataService.getAllTasks()); // Reload to include any new auto-generated tasks
-      setLoading(false);
+    const loadData = async () => {
+      try {
+        // Check data source
+        const source = await hybridDataService.getDataSource();
+        setDataSource(source);
+        
+        const allProperties = await hybridDataService.getAllProperties();
+        const allTasks = await hybridDataService.getAllTasks();
+        
+        // Generate price review tasks automatically (only for localStorage for now)
+        if (source === 'localStorage') {
+          hybridDataService.generatePriceReviewTasks();
+          const updatedTasks = await hybridDataService.getAllTasks();
+          setTasks(updatedTasks);
+        } else {
+          setTasks(allTasks);
+        }
+        
+        setProperties(allProperties);
+        setLoading(false);
+      } catch (error) {
+        console.error('Failed to load data:', error);
+        setLoading(false);
+      }
     };
 
     loadData();
   }, []);
 
-  const handlePropertyUpdate = () => {
-    setProperties(dataService.getAllProperties());
-    setTasks(dataService.getAllTasks());
+  const handlePropertyUpdate = async () => {
+    try {
+      const allProperties = await hybridDataService.getAllProperties();
+      const allTasks = await hybridDataService.getAllTasks();
+      setProperties(allProperties);
+      setTasks(allTasks);
+    } catch (error) {
+      console.error('Failed to update properties:', error);
+    }
   };
 
-  const handleTaskUpdate = () => {
-    setTasks(dataService.getAllTasks());
+  const handleTaskUpdate = async () => {
+    try {
+      const allTasks = await hybridDataService.getAllTasks();
+      setTasks(allTasks);
+    } catch (error) {
+      console.error('Failed to update tasks:', error);
+    }
   };
 
   if (loading) {
@@ -52,6 +78,7 @@ function App() {
         tasks={tasks}
         onPropertyUpdate={handlePropertyUpdate}
         onTaskUpdate={handleTaskUpdate}
+        dataSource={dataSource}
       />
     </div>
   );

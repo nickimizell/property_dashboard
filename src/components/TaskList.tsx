@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Task, Property } from '../types';
-import { dataService } from '../services/dataService';
+import { hybridDataService } from '../services/hybridDataService';
 import { Calendar, User, AlertTriangle, CheckCircle, Clock, Filter, MessageSquare, Check } from 'lucide-react';
 
 interface TaskListProps {
@@ -106,9 +106,14 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, properties, onTaskUpd
     return new Date(dueDate) < new Date() && new Date(dueDate).toDateString() !== new Date().toDateString();
   };
 
-  const handleCompleteTask = (taskId: string, notes?: string) => {
-    dataService.completeTask(taskId, notes);
-    onTaskUpdate();
+  const handleCompleteTask = async (taskId: string, notes?: string) => {
+    try {
+      await hybridDataService.completeTask(taskId, notes);
+      onTaskUpdate();
+    } catch (error) {
+      console.error('Failed to complete task:', error);
+      alert('Failed to complete task. Please try again.');
+    }
   };
 
   const filteredTasks = tasks.filter(task => {

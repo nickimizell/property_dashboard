@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: ootb-property-api
+    env: node
+    plan: free
+    repo: https://github.com/nickimizell/property_dashboard
+    branch: master
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false  # You'll need to add this manually in Render dashboard

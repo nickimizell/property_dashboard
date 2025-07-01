@@ -1,0 +1,85 @@
+Fill out the form:
+  - Name: ootb-property-db
+  - Database: property_dashboard
+  - User: property_user
+  - Region: Choose closest to you (US East usually fastest)
+  - PostgreSQL Version: Leave as default (15)
+  - Plan: Free (gives you 500MB storage - perfect for getting started)
+
+  4. Click "Create Database"
+
+  Step 3: Wait for Database Creation
+
+  - Takes about 2-3 minutes to spin up
+  - You'll see a loading screen
+  - Status will change from "Creating" to "Available"
+
+  Step 4: Get Database Connection Info
+
+  Once it's ready:
+  1. Click on your database name in the dashboard
+  2. Find the "Connections" section
+  3. Copy the "Internal Database URL" - looks like:
+  postgresql://property_user:password@dpg-xyz123/property_dashboard
+
+  Step 5: Run Database Migration
+
+  You have a few options to set up the tables:
+
+  Option A: Use a PostgreSQL Client (Recommended)
+
+  1. Download pgAdmin (free): https://www.pgadmin.org/download/
+  2. Connect using External Database URL from Render
+  3. Copy/paste the contents of database/schema.sql
+  4. Execute the script - this creates all tables and sample data
+
+  Option B: Use psql Command Line
+
+  If you have psql installed:
+  psql "external-database-url-from-render" < database/schema.sql
+
+  Option C: Render Web Shell (if available)
+
+  Some Render plans include a web-based SQL editor
+
+  Step 6: Verify Database Setup
+
+  After running the migration, you should have:
+  - ✅ 5 tables: properties, tasks, contingency_dates, users, activity_log
+  - ✅ Sample data: 2 properties and several tasks
+  - ✅ Indexes for fast queries
+  - ✅ Dashboard stats view
+
+  Step 7: Optional - Deploy API Backend
+
+  If you want team collaboration (multiple users sharing data):
+
+  1. Click "New +" → "Web Service"
+  2. Connect repository: nickimizell/property_dashboard
+  3. Settings:
+    - Name: ootb-property-api
+    - Root Directory: server
+    - Build Command: npm install
+    - Start Command: npm start
+  4. Environment Variables:
+  NODE_ENV=production
+  DATABASE_URL=[paste-your-internal-database-url]
+  5. Click "Create Web Service"
+
+  ---
+  🎯 Quick Questions:
+
+  1. Are you comfortable with pgAdmin or prefer command line?
+  2. Do you want team collaboration (multiple users) or is single-user fine for now?
+  3. Any specific questions about the database setup?
+
+  Once the database is set up, your dashboard can support:
+  - 👥 Multiple team members
+  - 🔄 Real-time data sharing
+  - 📊 Advanced reporting
+  - 🔍 Better search performance
+  - 📝 Audit trails
+
+  Let me know when you're ready for the next step!
+
+

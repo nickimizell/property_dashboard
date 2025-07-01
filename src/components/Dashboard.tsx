@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Property, Task, DashboardStats } from '../types';
-import { dataService } from '../services/dataService';
+import { hybridDataService } from '../services/hybridDataService';
 import { PropertyCard } from './PropertyCard';
 import { MapView } from './MapView';
 import { TaskList } from './TaskList';
@@ -15,9 +15,10 @@ interface DashboardProps {
   tasks: Task[];
   onPropertyUpdate: () => void;
   onTaskUpdate: () => void;
+  dataSource: 'api' | 'localStorage';
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ properties, tasks, onPropertyUpdate, onTaskUpdate }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ properties, tasks, onPropertyUpdate, onTaskUpdate, dataSource }) => {
   const [view, setView] = useState<'grid' | 'map' | 'tasks'>('grid');
   const [showPropertyForm, setShowPropertyForm] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -128,7 +129,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ properties, tasks, onPrope
           <div className="flex justify-between items-center h-16">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Property Management Dashboard</h1>
-              <p className="text-sm text-gray-600">Real Estate Portfolio Overview</p>
+              <div className="flex items-center space-x-4">
+                <p className="text-sm text-gray-600">Real Estate Portfolio Overview</p>
+                <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  dataSource === 'api' 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {dataSource === 'api' ? '🔗 Database Connected' : '💾 Local Storage'}
+                </div>
+              </div>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -245,10 +255,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ properties, tasks, onPrope
       {showPropertyForm && (
         <PropertyForm
           onClose={() => setShowPropertyForm(false)}
-          onSave={(property) => {
-            dataService.createProperty(property);
-            onPropertyUpdate();
-            setShowPropertyForm(false);
+          onSave={async (property) => {
+            try {
+              await hybridDataService.createProperty(property);
+              onPropertyUpdate();
+              setShowPropertyForm(false);
+            } catch (error) {
+              console.error('Failed to create property:', error);
+              alert('Failed to create property. Please try again.');
+            }
           }}
         />
       )}
@@ -257,10 +272,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ properties, tasks, onPrope
         <PropertyDetail
           property={selectedProperty}
           onClose={() => setSelectedProperty(null)}
-          onSave={(updatedProperty) => {
-            dataService.updateProperty(selectedProperty.id, updatedProperty);
-            onPropertyUpdate();
-            setSelectedProperty(null);
+          onSave={async (updatedProperty) => {
+            try {
+              await hybridDataService.updateProperty(selectedProperty.id, updatedProperty);
+              onPropertyUpdate();
+              setSelectedProperty(null);
+            } catch (error) {
+              console.error('Failed to update property:', error);
+              alert('Failed to update property. Please try again.');
+            }
           }}
         />
       )}

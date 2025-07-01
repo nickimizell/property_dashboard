@@ -1,0 +1,23 @@
+Hostname
+dpg-d1i5odndiees73cdcer0-a
+
+Port
+5432
+
+Database
+property_dashboard
+
+Username
+property_user
+
+Password
+sPMZF31Xsd8eCkiv2kYl4DVmAsctLBDk
+
+Internal Database URL
+postgresql://property_user:sPMZF31Xsd8eCkiv2kYl4DVmAsctLBDk@dpg-d1i5odndiees73cdcer0-a/property_dashboard
+
+External Database URL
+postgresql://property_user:sPMZF31Xsd8eCkiv2kYl4DVmAsctLBDk@dpg-d1i5odndiees73cdcer0-a.oregon-postgres.render.com/property_dashboard
+
+PSQL Command
+PGPASSWORD=sPMZF31Xsd8eCkiv2kYl4DVmAsctLBDk psql -h dpg-d1i5odndiees73cdcer0-a.oregon-postgres.render.com -U property_user property_dashboard
