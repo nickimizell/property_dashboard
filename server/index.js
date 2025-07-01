@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { Pool } = require('pg');
 require('dotenv').config();
 
@@ -15,6 +16,9 @@ const pool = new Pool({
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the React build
+app.use(express.static(path.join(__dirname, '..', 'dist')));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -387,6 +391,11 @@ app.put('/api/tasks/:id/complete', async (req, res) => {
   }
 });
 
+// Catch-all handler: send back React's index.html file for any non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -395,7 +404,9 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(port, () => {
-  console.log(`OOTB Property API server running on port ${port}`);
+  console.log(`OOTB Property Full-Stack App running on port ${port}`);
+  console.log(`Frontend: http://localhost:${port}`);
+  console.log(`API: http://localhost:${port}/api`);
 });
 
 module.exports = app;

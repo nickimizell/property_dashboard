@@ -1,6 +1,6 @@
 import { Property, Task } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ootb-property-api.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_URL || window.location.origin;
 
 class ApiService {
   private static instance: ApiService;

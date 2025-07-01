@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: ootb-property-dashboard
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build && cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false  # You'll add this manually in Render dashboard

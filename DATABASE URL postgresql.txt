@@ -1,0 +1,2 @@
+  DATABASE_URL=postgresql://property_user:password@dpg-xyz123.oregon-postgres.render.com/property_dashboard
+

@@ -1,0 +1,1 @@
+postgresql://property_user:sPMZF31Xsd8eCkiv2kYl4DVmAsctLBDk@dpg-d1i5odndiees73cdcer0-a/property_dashboard
