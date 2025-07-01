@@ -399,9 +399,28 @@ app.put('/api/tasks/:id/complete', async (req, res) => {
 // Database management endpoints
 app.post('/api/database/reseed', async (req, res) => {
   try {
-    console.log('🔄 Manual database re-seed triggered...');
+    console.log('🔄 Manual database re-seed triggered - THIS WILL DELETE ALL DATA!');
+    
+    // Force clear and re-seed for manual requests
+    const tempPool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    });
+    
+    const client = await tempPool.connect();
+    try {
+      console.log('🗑️ Manually clearing all existing data...');
+      await client.query('DELETE FROM tasks');
+      await client.query('DELETE FROM contingency_dates');  
+      await client.query('DELETE FROM properties');
+      console.log('✅ Data cleared, now re-seeding...');
+    } finally {
+      client.release();
+      await tempPool.end();
+    }
+    
     await seedDatabase();
-    res.json({ success: true, message: 'Database re-seeded successfully with Trident Properties' });
+    res.json({ success: true, message: 'Database forcefully re-seeded with Trident Properties' });
   } catch (err) {
     console.error('Manual re-seed error:', err);
     res.status(500).json({ error: 'Failed to re-seed database' });
