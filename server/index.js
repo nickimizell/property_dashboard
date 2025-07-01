@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const { Pool } = require('pg');
 const { seedDatabase } = require('./seed-db');
+const { updatePropertyCoordinates, geocodeAddress } = require('./geocoding');
 require('dotenv').config();
 
 const app = express();
@@ -392,6 +393,37 @@ app.put('/api/tasks/:id/complete', async (req, res) => {
   } catch (err) {
     console.error('Task completion error:', err);
     res.status(500).json({ error: 'Failed to complete task' });
+  }
+});
+
+// Geocoding endpoints
+app.post('/api/geocode/batch', async (req, res) => {
+  try {
+    console.log('🌍 Starting batch geocoding update...');
+    await updatePropertyCoordinates(pool);
+    res.json({ success: true, message: 'Property coordinates updated successfully' });
+  } catch (err) {
+    console.error('Geocoding error:', err);
+    res.status(500).json({ error: 'Failed to update property coordinates' });
+  }
+});
+
+app.post('/api/geocode/address', async (req, res) => {
+  try {
+    const { address } = req.body;
+    if (!address) {
+      return res.status(400).json({ error: 'Address is required' });
+    }
+    
+    const coordinates = await geocodeAddress(address);
+    if (coordinates) {
+      res.json({ success: true, coordinates });
+    } else {
+      res.status(404).json({ error: 'Address not found' });
+    }
+  } catch (err) {
+    console.error('Single address geocoding error:', err);
+    res.status(500).json({ error: 'Failed to geocode address' });
   }
 });
 

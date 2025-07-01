@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Property, Task, DashboardStats } from '../types';
 import { hybridDataService } from '../services/hybridDataService';
 import { PropertyCard } from './PropertyCard';
-import { MapView } from './MapView';
+import { OSMMapView } from './OSMMapView';
 import { TaskList } from './TaskList';
 import { PropertyForm } from './PropertyForm';
 import { PropertyDetail } from './PropertyDetail';
@@ -236,7 +236,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ properties, tasks, onPrope
 
         {view === 'map' && (
           <div className="mt-8">
-            <MapView 
+            <OSMMapView 
               properties={filteredProperties} 
               onPropertyClick={handlePropertyClick}
               getOutstandingTasksCount={getOutstandingTasksCount}
