@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: property-dashboard
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npx serve -s dist -l 10000
+    envVars:
+      - key: NODE_ENV
+        value: production
