@@ -51,7 +51,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         ) : (
           <TrendingDown className="h-3 w-3" />
         )}
-        <span>${Math.abs(difference).toLocaleString()}</span>
+        <span>${Math.abs(Math.round(difference)).toLocaleString()}</span>
       </div>
     );
   };
@@ -161,7 +161,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         )}
         {property.basisPoints && (
           <p className="text-sm text-gray-600">
-            <span className="font-medium">Basis Points:</span> {property.basisPoints}
+            <span className="font-medium">Basis Points:</span> {property.basisPoints?.toLocaleString()}
           </p>
         )}
       </div>
@@ -190,7 +190,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-600">Starting:</span>
                 <span className="font-medium text-gray-900">
-                  ${property.startingListPrice.toLocaleString()}
+                  ${Math.round(property.startingListPrice).toLocaleString()}
                 </span>
               </div>
             )}
@@ -199,7 +199,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-600">Current:</span>
                 <span className="font-semibold text-gray-900">
-                  ${property.currentListPrice.toLocaleString()}
+                  ${Math.round(property.currentListPrice).toLocaleString()}
                 </span>
               </div>
             )}
@@ -212,7 +212,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             <DollarSign className="h-4 w-4 text-gray-400" />
             <span className="text-sm text-gray-600">Contract:</span>
             <span className="text-sm font-medium text-gray-900">
-              ${property.underContractPrice.toLocaleString()}
+              ${Math.round(property.underContractPrice).toLocaleString()}
             </span>
           </div>
         )}

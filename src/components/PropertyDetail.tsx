@@ -45,7 +45,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
         ) : (
           <TrendingDown className="h-4 w-4" />
         )}
-        <span>${Math.abs(difference).toLocaleString()}</span>
+        <span>${Math.abs(Math.round(difference)).toLocaleString()}</span>
       </div>
     );
   };
@@ -90,7 +90,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
             <p className="text-sm font-medium text-gray-700">{label}</p>
             <p className="text-sm text-gray-900">
               {type === 'date' && value ? new Date(value).toLocaleDateString() :
-               type === 'number' && value ? value.toLocaleString() :
+               type === 'number' && value ? Math.round(value).toLocaleString() :
                value || 'Not set'}
             </p>
           </div>
