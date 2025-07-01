@@ -40,8 +40,8 @@ async function seedDatabase() {
 
     console.log('🔧 Creating database schema and seeding data...');
     
-    // Read and execute the schema file
-    const schemaPath = path.join(__dirname, '..', 'database', 'schema.sql');
+    // Read and execute the schema file with Trident data
+    const schemaPath = path.join(__dirname, '..', 'database', 'schema_with_trident_data.sql');
     const schema = fs.readFileSync(schemaPath, 'utf8');
     
     // Execute the schema in parts (PostgreSQL sometimes has issues with large scripts)

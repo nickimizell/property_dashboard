@@ -115,6 +115,7 @@ app.get('/api/properties', async (req, res) => {
       currentListPrice: row.current_list_price,
       status: row.status,
       propertyType: row.property_type,
+      workflowType: row.workflow_type,
       isRented: row.is_rented,
       notes: row.notes,
       coordinates: {
@@ -173,6 +174,7 @@ app.get('/api/properties/:id', async (req, res) => {
       currentListPrice: row.current_list_price,
       status: row.status,
       propertyType: row.property_type,
+      workflowType: row.workflow_type,
       isRented: row.is_rented,
       notes: row.notes,
       coordinates: {
@@ -270,14 +272,14 @@ app.post('/api/properties', async (req, res) => {
       INSERT INTO properties (
         address, client_name, selling_agent, loan_number, basis_points,
         closing_date, under_contract_price, starting_list_price, current_list_price,
-        status, property_type, is_rented, notes, coordinates_lat, coordinates_lng,
+        status, property_type, workflow_type, is_rented, notes, coordinates_lat, coordinates_lng,
         listing_date, last_price_reduction
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       RETURNING *
     `, [
       property.address, property.clientName, property.sellingAgent, property.loanNumber, property.basisPoints,
       property.closingDate, property.underContractPrice, property.startingListPrice, property.currentListPrice,
-      property.status, property.propertyType, property.isRented, property.notes, 
+      property.status, property.propertyType, property.workflowType || 'Conventional', property.isRented, property.notes, 
       property.coordinates?.lat, property.coordinates?.lng, property.listingDate, property.lastPriceReduction
     ]);
 
@@ -320,19 +322,20 @@ app.put('/api/properties/:id', async (req, res) => {
         current_list_price = COALESCE($9, current_list_price),
         status = COALESCE($10, status),
         property_type = COALESCE($11, property_type),
-        is_rented = COALESCE($12, is_rented),
-        notes = COALESCE($13, notes),
-        coordinates_lat = COALESCE($14, coordinates_lat),
-        coordinates_lng = COALESCE($15, coordinates_lng),
-        listing_date = COALESCE($16, listing_date),
-        last_price_reduction = COALESCE($17, last_price_reduction),
+        workflow_type = COALESCE($12, workflow_type),
+        is_rented = COALESCE($13, is_rented),
+        notes = COALESCE($14, notes),
+        coordinates_lat = COALESCE($15, coordinates_lat),
+        coordinates_lng = COALESCE($16, coordinates_lng),
+        listing_date = COALESCE($17, listing_date),
+        last_price_reduction = COALESCE($18, last_price_reduction),
         updated_at = NOW()
-      WHERE id = $18
+      WHERE id = $19
       RETURNING *
     `, [
       property.address, property.clientName, property.sellingAgent, property.loanNumber, property.basisPoints,
       property.closingDate, property.underContractPrice, property.startingListPrice, property.currentListPrice,
-      property.status, property.propertyType, property.isRented, property.notes,
+      property.status, property.propertyType, property.workflowType, property.isRented, property.notes,
       property.coordinates?.lat, property.coordinates?.lng, property.listingDate, property.lastPriceReduction, id
     ]);
 

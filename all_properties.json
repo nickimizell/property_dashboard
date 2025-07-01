@@ -1,0 +1,2040 @@
+[
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 1,
+    "raw_data": {
+      "Unnamed: 0": "Basis Points/Loan number",
+      "Unnamed: 1": "Status",
+      "Unnamed: 2": "Address",
+      "Unnamed: 3": "Closing",
+      "Unnamed: 4": "UC $",
+      "Unnamed: 5": "Single/Multi",
+      "Unnamed: 6": "Notified",
+      "Unnamed: 7": "Secured",
+      "Unnamed: 8": "Electric ordered",
+      "Unnamed: 9": "Current List",
+      "Unnamed: 10": "Starting List Price",
+      "Unnamed: 11": "Listing Date",
+      "Unnamed: 12": "Change",
+      "Unnamed: 13": "Rented",
+      "Unnamed: 14": " Rent",
+      "Unnamed: 15": "Lease End "
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 2,
+    "raw_data": {
+      "Unnamed: 0": "",
+      "Unnamed: 1": "Hold",
+      "Unnamed: 2": "7332 Wellington ",
+      "Unnamed: 3": "",
+      "Unnamed: 4": "",
+      "Unnamed: 5": "Single",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 199900,
+      "Unnamed: 10": 249900,
+      "Unnamed: 11": "2024-05-16 00:00:00",
+      "Unnamed: 12": "",
+      "Unnamed: 13": "",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 3,
+    "raw_data": {
+      "Unnamed: 0": "",
+      "Unnamed: 1": "Active",
+      "Unnamed: 2": "3838 Oregon",
+      "Unnamed: 3": "",
+      "Unnamed: 4": "130K",
+      "Unnamed: 5": "Single",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 129900,
+      "Unnamed: 10": 99900,
+      "Unnamed: 11": "2024-03-19 00:00:00",
+      "Unnamed: 12": "",
+      "Unnamed: 13": "n",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 4,
+    "raw_data": {
+      "Unnamed: 0": "",
+      "Unnamed: 1": "Hold",
+      "Unnamed: 2": "4278 E Sacremento ",
+      "Unnamed: 3": "",
+      "Unnamed: 4": "",
+      "Unnamed: 5": "4 Family ",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 109900,
+      "Unnamed: 10": 149900,
+      "Unnamed: 11": "2024-05-18 00:00:00",
+      "Unnamed: 12": "",
+      "Unnamed: 13": "y 1 of 4",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 5,
+    "raw_data": {
+      "Unnamed: 0": "",
+      "Unnamed: 1": "Hold",
+      "Unnamed: 2": "2359 Michigan",
+      "Unnamed: 3": "",
+      "Unnamed: 4": "",
+      "Unnamed: 5": "single",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 159900,
+      "Unnamed: 10": 159900,
+      "Unnamed: 11": "2024-10-16 00:00:00",
+      "Unnamed: 12": "",
+      "Unnamed: 13": "",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 6,
+    "raw_data": {
+      "Unnamed: 0": "",
+      "Unnamed: 1": "Active",
+      "Unnamed: 2": "5175 Cabanne ",
+      "Unnamed: 3": "",
+      "Unnamed: 4": 40000,
+      "Unnamed: 5": "single",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 54900,
+      "Unnamed: 10": 69900,
+      "Unnamed: 11": "2024-10-14 00:00:00",
+      "Unnamed: 12": "2025-04-25 00:00:00",
+      "Unnamed: 13": "",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 7,
+    "raw_data": {
+      "Unnamed: 0": "loan # 307624  ",
+      "Unnamed: 1": "Active",
+      "Unnamed: 2": "5168 Vernon",
+      "Unnamed: 3": "",
+      "Unnamed: 4": "",
+      "Unnamed: 5": "single",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 89900,
+      "Unnamed: 10": 129000,
+      "Unnamed: 11": "2024-10-30 00:00:00",
+      "Unnamed: 12": "2025-05-19 00:00:00",
+      "Unnamed: 13": "",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 8,
+    "raw_data": {
+      "Unnamed: 0": "basis 109,520 loan # 308284",
+      "Unnamed: 1": "Under Contract ",
+      "Unnamed: 2": "4527 Minnesota",
+      "Unnamed: 3": "2025-07-08 00:00:00",
+      "Unnamed: 4": 99900,
+      "Unnamed: 5": "2 family",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 99900,
+      "Unnamed: 10": 139900,
+      "Unnamed: 11": "2024-12-10 00:00:00",
+      "Unnamed: 12": "2025-04-25 00:00:00",
+      "Unnamed: 13": "",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 9,
+    "raw_data": {
+      "Unnamed: 0": "",
+      "Unnamed: 1": "Active",
+      "Unnamed: 2": "3936 Lexington",
+      "Unnamed: 3": "",
+      "Unnamed: 4": "",
+      "Unnamed: 5": "duplex",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 54900,
+      "Unnamed: 10": 79900,
+      "Unnamed: 11": "2024-11-19 00:00:00",
+      "Unnamed: 12": "2025-05-25 00:00:00",
+      "Unnamed: 13": "",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 10,
+    "raw_data": {
+      "Unnamed: 0": "",
+      "Unnamed: 1": "Active",
+      "Unnamed: 2": "3735 Wisconsin",
+      "Unnamed: 3": "",
+      "Unnamed: 4": "",
+      "Unnamed: 5": "4 family",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 139900,
+      "Unnamed: 10": 199900,
+      "Unnamed: 11": "2024-12-10 00:00:00",
+      "Unnamed: 12": "2025-05-25 00:00:00",
+      "Unnamed: 13": "",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 11,
+    "raw_data": {
+      "Unnamed: 0": "loan # 307232",
+      "Unnamed: 1": "pre",
+      "Unnamed: 2": "2131-2133 Stansbury St ",
+      "Unnamed: 3": "",
+      "Unnamed: 4": "",
+      "Unnamed: 5": "2 family",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 199900,
+      "Unnamed: 10": "",
+      "Unnamed: 11": "",
+      "Unnamed: 12": "",
+      "Unnamed: 13": "",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 12,
+    "raw_data": {
+      "Unnamed: 0": "",
+      "Unnamed: 1": "Active",
+      "Unnamed: 2": "1603 Belleau Lake Dr O'Fallon",
+      "Unnamed: 3": "",
+      "Unnamed: 4": "",
+      "Unnamed: 5": "single",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 89000,
+      "Unnamed: 10": 129000,
+      "Unnamed: 11": "",
+      "Unnamed: 12": "2025-05-25 00:00:00",
+      "Unnamed: 13": "n",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 13,
+    "raw_data": {
+      "Unnamed: 0": "220k",
+      "Unnamed: 1": "pre",
+      "Unnamed: 2": "3539 Michigan 220k Jason ",
+      "Unnamed: 3": "",
+      "Unnamed: 4": "",
+      "Unnamed: 5": "4 family",
+      "Unnamed: 6": "",
+      "Unnamed: 7": "",
+      "Unnamed: 8": "",
+      "Unnamed: 9": "",
+      "Unnamed: 10": "",
+      "Unnamed: 11": "",
+      "Unnamed: 12": "",
+      "Unnamed: 13": "y",
+      "Unnamed: 14": 600,
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 14,
+    "raw_data": {
+      "Unnamed: 0": "loan #304975  basis $90,177.49",
+      "Unnamed: 1": "Active",
+      "Unnamed: 2": "4369 Evans St Louis 66113",
+      "Unnamed: 3": "",
+      "Unnamed: 4": "",
+      "Unnamed: 5": "single",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 59900,
+      "Unnamed: 10": "",
+      "Unnamed: 11": "",
+      "Unnamed: 12": "2025-05-25 00:00:00",
+      "Unnamed: 13": "n",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 15,
+    "raw_data": {
+      "Unnamed: 0": "",
+      "Unnamed: 1": "Under Contract ",
+      "Unnamed: 2": "10533 Earl Dr ",
+      "Unnamed: 3": "2025-07-02 00:00:00",
+      "Unnamed: 4": 99900,
+      "Unnamed: 5": "single",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 99000,
+      "Unnamed: 10": "",
+      "Unnamed: 11": "",
+      "Unnamed: 12": "",
+      "Unnamed: 13": "",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 16,
+    "raw_data": {
+      "Unnamed: 0": "loan # 306994 basis $101,675",
+      "Unnamed: 1": "Under Contract ",
+      "Unnamed: 2": "3929 Pennsylvania ",
+      "Unnamed: 3": "7/16 or before",
+      "Unnamed: 4": 111650,
+      "Unnamed: 5": "2 family",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 119900,
+      "Unnamed: 10": 119900,
+      "Unnamed: 11": "",
+      "Unnamed: 12": "",
+      "Unnamed: 13": "",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 17,
+    "raw_data": {
+      "Unnamed: 0": "loan # 305065 basis $244,076",
+      "Unnamed: 1": "Under Contract ",
+      "Unnamed: 2": "7280 S Roland",
+      "Unnamed: 3": "2025-07-11 00:00:00",
+      "Unnamed: 4": 265000,
+      "Unnamed: 5": "single",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "y",
+      "Unnamed: 8": "",
+      "Unnamed: 9": 279900,
+      "Unnamed: 10": 299900,
+      "Unnamed: 11": "",
+      "Unnamed: 12": "2025-06-15 00:00:00",
+      "Unnamed: 13": "",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 18,
+    "raw_data": {
+      "Unnamed: 0": "loan #304061 basis $158,242 ",
+      "Unnamed: 1": "pre",
+      "Unnamed: 2": "3708 Bamberger Ave 63116",
+      "Unnamed: 3": "",
+      "Unnamed: 4": "",
+      "Unnamed: 5": "single",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "",
+      "Unnamed: 8": "",
+      "Unnamed: 9": "",
+      "Unnamed: 10": "",
+      "Unnamed: 11": "",
+      "Unnamed: 12": "",
+      "Unnamed: 13": "",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "List of Properties",
+    "row_number": 19,
+    "raw_data": {
+      "Unnamed: 0": "loan #307748. basis $77,787",
+      "Unnamed: 1": "pre",
+      "Unnamed: 2": "3223 Taft 63111",
+      "Unnamed: 3": "",
+      "Unnamed: 4": "",
+      "Unnamed: 5": "",
+      "Unnamed: 6": "y",
+      "Unnamed: 7": "",
+      "Unnamed: 8": "",
+      "Unnamed: 9": "",
+      "Unnamed: 10": "",
+      "Unnamed: 11": "",
+      "Unnamed: 12": "",
+      "Unnamed: 13": "",
+      "Unnamed: 14": "",
+      "Unnamed: 15": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3709 Bamberger",
+    "row_number": 1,
+    "raw_data": {
+      "PreList": "6/11 Jake will have Paul rekey",
+      "List": "",
+      "Under Contract": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3709 Bamberger",
+    "row_number": 2,
+    "raw_data": {
+      "PreList": "Code is 3030, Paut to clean out mold/remove flooring in basement ",
+      "List": "",
+      "Under Contract": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3929 Pennsylvania",
+    "row_number": 1,
+    "raw_data": {
+      "Prelist": "",
+      "List": "listing agreement for 119,900 signed by Mike 6/10",
+      "Under Contract": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7280 S Roland",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "3/6 requested rekey",
+      "LISTING": "was listed previously in current condition for 304,900",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7280 S Roland",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "3/16 checked on rekey",
+      "LISTING": "started at 324,999, 60 days OM not under contract",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7280 S Roland",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "3/16 confirmed rekey, schedule photos for 3/18",
+      "LISTING": "Listing photos scheduled for 4/10",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "10533 Earl Dr",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "received 1/29, sent to Kevin to rekey",
+      "LISTING": "Listed 119,900",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "10533 Earl Dr",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "Tenant occupied, currently paying 1200",
+      "LISTING": "Price change 3/24",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "10533 Earl Dr",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "Jason working on tenant prior to list",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "10533 Earl Dr",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "2/4 sendn listing agreement for 119,900",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "10533 Earl Dr",
+    "row_number": 5,
+    "raw_data": {
+      "PRELIST": "tenant occupied new lease for $1500 per month",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "10533 Earl Dr",
+    "row_number": 6,
+    "raw_data": {
+      "PRELIST": "schedule photos with Jason for Tues 2/11",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "1603 Belleau Lake",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "find out from County staus re flood ",
+      "LISTING": "https://matrix.marismatrix.com/matrix/shared/tm67YtgDssHd/1603BelleauLakeDr",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "1603 Belleau Lake",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "Per Kevin list at 129k, listing agreement sent to Mike",
+      "LISTING": "listed 129,000",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "1603 Belleau Lake",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "got info from County, as well as documents from previous owner",
+      "LISTING": "price drop to 109,900",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "1603 Belleau Lake",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "Walked property 2/2 for photos, ",
+      "LISTING": "next price drop 3/25",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3735 Wisconsin",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "https://drive.google.com/drive/folders/1TO2QhFChToFDTXInRMFOCOi8svE99IlU?usp=sharing",
+      "LISTING": "https://matrix.marismatrix.com/matrix/shared/9rr7LgdbdsHd/3735WisconsinAve",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3735 Wisconsin",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "Current list 179,900",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3735 Wisconsin",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "next change 3/22",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3936 Lexington",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "https://drive.google.com/drive/folders/1dSviyXWJZxsvYJ2CGmBaTLX-xCv7uH1W?usp=drive_link",
+      "LISTING": "https://matrix.marismatrix.com/matrix/shared/MlmYl3WvcsHd/3936LexingtonAve",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3936 Lexington",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "current list 74,900",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3936 Lexington",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "next price change 2/22",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4527 Minnesota",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "list to sell as-is until Paul is done with Sacremento ",
+      "LISTING": "https://matrix.marismatrix.com/matrix/shared/pj1zKsStcsHd/4527MinnesotaAve",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4527 Minnesota",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "Paul to update to occupancy standards and place tenant in unit",
+      "LISTING": "listed 119,900",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4527 Minnesota",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "https://drive.google.com/drive/folders/1-JkbATUXbSlSXVolW9W2XBfOm4gi1oKJ?usp=drive_link",
+      "LISTING": "next price change 3/22",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4527 Minnesota",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "Paul did cleanout of the building",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4527 Minnesota",
+    "row_number": 5,
+    "raw_data": {
+      "PRELIST": "slope",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4527 Minnesota",
+    "row_number": 6,
+    "raw_data": {
+      "PRELIST": "4/17 Found property had lockboxes stolen, can't enter, also condenser coil has been stolen, ",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4527 Minnesota",
+    "row_number": 7,
+    "raw_data": {
+      "PRELIST": "Approved Paul to rekey again tomorrow ",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4527 Minnesota",
+    "row_number": 8,
+    "raw_data": {
+      "PRELIST": "4/18 Chip reported the neighbor said there are squatters on the second floor, sent message to Paul",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "5168 Vernon",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "5168 Vernon",
+      "LIST": "current list 109,900",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "5168 Vernon",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "https://matrix.marismatrix.com/matrix/shared/5SBx50wZcsHd/5168VernonAve",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7327 Pennsylvania",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "https://drive.google.com/drive/folders/1BxjTAh1PfWGwz7SVii_tinl0lTvbHE8r?usp=drive_link",
+      "LIST": "https://matrix.marismatrix.com/matrix/shared/YyNhLJB0csHd/7327PennsylvaniaAve",
+      "UNDER CONTRACT": 140000
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7327 Pennsylvania",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "",
+      "UNDER CONTRACT": "NEED LBP"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7327 Pennsylvania",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "",
+      "UNDER CONTRACT": "Earnest due 1/21"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7327 Pennsylvania",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "",
+      "UNDER CONTRACT": "Financing 2/7"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7327 Pennsylvania",
+    "row_number": 5,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "",
+      "UNDER CONTRACT": "Close 2/12"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7327 Pennsylvania",
+    "row_number": 6,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "",
+      "UNDER CONTRACT": "SOLD"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "5175 Cabanne",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "https://drive.google.com/drive/folders/1Id1sa561CHbBuFjO1BMEQWKnwFOYauFz?usp=drive_link",
+      "LIST": "Current list 64,900",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "5175 Cabanne",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "-When Paul is done with ",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "5175 Cabanne",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": " Sacremento he will box in ",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "5175 Cabanne",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "https://matrix.marismatrix.com/matrix/shared/ffsZhWK2csHd/5174CabanneAve",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2359 Michigan",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "Chikkas rehabbing",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2359 Michigan",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "need outdoor living space plan",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2359 Michigan",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "March list plan",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2359 Michigan",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "https://drive.google.com/drive/folders/171hMhBa7IR_RFUP6U2_bSP9L6cc4-clv?usp=drive_link",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2104 Harris",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "https://drive.google.com/drive/folders/1gbo7f7C-UVZ_IdwWxw0YlyNjitHMHlc-?usp=drive_link",
+      "LIST": 39900,
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2104 Harris",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "https://matrix.marismatrix.com/matrix/shared/vYc2gFP3csHd/2104HarrisAve",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3539 Michigan",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "Jason working eviction",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3539 Michigan",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "Need CMA for sale",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3539 Michigan",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "Quad 1 bed units",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3539 Michigan",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "Emailed Jason re evictions 2/13",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3539 Michigan",
+    "row_number": 5,
+    "raw_data": {
+      "PRELIST": "4/18 emailed Jason for access on Tues 11-1 ",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3539 Michigan",
+    "row_number": 6,
+    "raw_data": {
+      "PRELIST": "4/18 emaied Jason for leases and rental verification ",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3539 Michigan",
+    "row_number": 7,
+    "raw_data": {
+      "PRELIST": "4/19 Jason confirmed access for Tues for 2 rented units",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3539 Michigan",
+    "row_number": 8,
+    "raw_data": {
+      "PRELIST": "4/19 Jason called, no gas on due to a gas leak, asked if ",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3539 Michigan",
+    "row_number": 9,
+    "raw_data": {
+      "PRELIST": "he should install electric WHs or fix gas leak, I said fix the leak, he",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3539 Michigan",
+    "row_number": 10,
+    "raw_data": {
+      "PRELIST": "wasnt able to reach Kevin.",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4369 Evans",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "requested rekey for after 1/25",
+      "LISTING": "list for 79,900",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4369 Evans",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "basis 90,178",
+      "LISTING": "https://portal.onehome.com/en-US/share/1140326R55624",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4369 Evans",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "Listed currently, agent contacted",
+      "LISTING": "69,900 4/25",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4369 Evans",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "https://portal.onehome.com/en-US/share/1128261s07060",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4369 Evans",
+    "row_number": 5,
+    "raw_data": {
+      "PRELIST": "2/13 need photos then list mls ",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2619 Ann",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "https://drive.google.com/drive/folders/1le1spmPgJlw1OokwsfTzIOy-gcjXvSBk?usp=sharing",
+      "LISTING": "https://matrix.marismatrix.com/matrix/shared/B35lV7S4csHd/2619AnnAve",
+      "UNDER CONTRACT": "UC 1/26"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2619 Ann",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "",
+      "UNDER CONTRACT": "Earnest 1/31"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2619 Ann",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "",
+      "UNDER CONTRACT": "Inspections 2/10"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2619 Ann",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "",
+      "UNDER CONTRACT": "Financing 2/14"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2619 Ann",
+    "row_number": 5,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "",
+      "UNDER CONTRACT": "Close 2/21"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2619 Ann",
+    "row_number": 6,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "",
+      "UNDER CONTRACT": "Need LBP from buyer-requested"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2619 Ann",
+    "row_number": 7,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "",
+      "UNDER CONTRACT": "Inspection scheduled 1/28"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2619 Ann",
+    "row_number": 8,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "",
+      "UNDER CONTRACT": "Per Buyer agent expect Mutual Release 1/29"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "11709 Talbott",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "https://drive.google.com/drive/folders/18mqnWW4fb8xS9YmvF8Ibqt261oWvOi3f?usp=drive_link",
+      "LIST": "list 149,900 1/22",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "11709 Talbott",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "sign in yard ",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "11709 Talbott",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "Offer 1: counter at 140k, on 1/27 or remove",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "11709 Talbott",
+    "row_number": 5,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "buyers agent commission",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "11709 Talbott",
+    "row_number": 6,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "-countered, buyers highest and best is 135k with ",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "11709 Talbott",
+    "row_number": 7,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "commission or 131,355",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "11709 Talbott",
+    "row_number": 8,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "https://matrix.marismatrix.com/matrix/shared/HJv9lNX5csHd/11709TalbottCt",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "11709 Talbott",
+    "row_number": 9,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "Kevin approved offer of 135k, sent to Mike for signature 1/28 3;30PM",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3414 Regal",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "https://matrix.marismatrix.com/matrix/shared/m1mTW247csHd/3414RegalPlace",
+      "UNDER CONTRACT": "Close 2/14"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3414 Regal",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "",
+      "UNDER CONTRACT": "Inspections Resolved"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3414 Regal",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "",
+      "LISTING": "",
+      "UNDER CONTRACT": "Loan Contingency 2/5"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7332 Wellington",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "Ian to rehab",
+      "LIST": "330-360 range ARV",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7332 Wellington",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "Listing on Hold",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7332 Wellington",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "week of 1/20 get updated timeline from Ian",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7332 Wellington",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "Site visit 4/7 MEPs not completed to passing, timeline for project 10 weeks out ",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7332 Wellington",
+    "row_number": 5,
+    "raw_data": {
+      "PRELIST": "text to Ian 4/17 to check on permitting",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7332 Wellington",
+    "row_number": 6,
+    "raw_data": {
+      "PRELIST": ".  -reply that electric passed, HVAC will be this friday, Plumbing still an issue",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7332 Wellington",
+    "row_number": 7,
+    "raw_data": {
+      "PRELIST": "Spoke to Ian about reframing the project to bring in a plumber, getting the ",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7332 Wellington",
+    "row_number": 8,
+    "raw_data": {
+      "PRELIST": "plumbing to pass is too much for him",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7332 Wellington",
+    "row_number": 9,
+    "raw_data": {
+      "PRELIST": "Per Ian HVAC and Electric passed, stil struggling with plumbing, sent message to ",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7332 Wellington",
+    "row_number": 10,
+    "raw_data": {
+      "PRELIST": "   Kevin to possibly reframe the project",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "7332 Wellington",
+    "row_number": 11,
+    "raw_data": {
+      "PRELIST": "Ian messaged back that he is going to try one more time to get plumbing to pass",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4278 East Sacramento",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "4 Family, Paul to rehab",
+      "LIST": "Determine list price ARV",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4278 East Sacramento",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "1/20 Paul almost finished with 2 units, will put tenants in ",
+      "LIST": "list 199,900",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4278 East Sacramento",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "then move to other 2 units",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4278 East Sacramento",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "1 2 bed unit and 3 1 bed units",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4278 East Sacramento",
+    "row_number": 5,
+    "raw_data": {
+      "PRELIST": "Verify Beds/baths with Paul, one unit has kitchen in basement",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4278 East Sacramento",
+    "row_number": 6,
+    "raw_data": {
+      "PRELIST": "No furnace, baseboard heat installed and tenants to supply AC",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4278 East Sacramento",
+    "row_number": 7,
+    "raw_data": {
+      "PRELIST": "1 Unit Occupancy Inspection 1/28 then place tenant",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4278 East Sacramento",
+    "row_number": 8,
+    "raw_data": {
+      "PRELIST": "Unit with kitchen in basement needs clearing of trailer and repair of back ",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4278 East Sacramento",
+    "row_number": 9,
+    "raw_data": {
+      "PRELIST": "porch to pass occupancy by 2/2/2025",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4278 East Sacramento",
+    "row_number": 10,
+    "raw_data": {
+      "PRELIST": "4/18 Per Paul still waiting for electric in 2 new units",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "4278 East Sacramento",
+    "row_number": 11,
+    "raw_data": {
+      "PRELIST": "repairs needed post tornado per Paul 7/1 should be done next week ",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2110-2112 Harris",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "https://drive.google.com/drive/folders/1EO8b3FWCdX-SogkfpUgz3A_fyK2NQCtm?usp=drive_link",
+      "LIST": "Current list  $54,900 next change 2/22",
+      "UNDER CONTRACT": "closed for 33k 4/3"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2110-2112 Harris",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "",
+      "LIST": "https://matrix.marismatrix.com/matrix/shared/k0tgrD88csHd/2110HarrisAve",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "https://drive.google.com/drive/folders/1k0nPSvL62i9OmKKxCdlE18ncSJrWAxTY?usp=drive_link",
+      "LISTING": "Per Kevin list for 199,900",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "Walked with Calvin for Bid to finish to occupancy standards the vacant unit",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "Tenants had changed locks saying was was broken into, instructed Calvin to change locks again",
+      "LISTING": "2 4 bed 2 bath units",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "Put lockbox on the property and left the keys the tenant gave me in it, Calvin to switch keys when he ",
+      "LISTING": "Need to get listing photos of finished side",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 5,
+    "raw_data": {
+      "PRELIST": "       rekeys it",
+      "LISTING": "as well as unfinished side",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 6,
+    "raw_data": {
+      "PRELIST": "Need CMS for property as is and as finished rented unit",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 7,
+    "raw_data": {
+      "PRELIST": "1/27 Calvin will change the locks today, asked if he should include cleanout in the bid, ",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 8,
+    "raw_data": {
+      "PRELIST": "I said yes but include it as a separate line item. He asked if we have a budget and I said the cheapest",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 9,
+    "raw_data": {
+      "PRELIST": "possible to get us passing occupancy",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 10,
+    "raw_data": {
+      "PRELIST": "He has been paid ACH previously, wants to change the bank account so I will send him a new ACH",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 11,
+    "raw_data": {
+      "PRELIST": "form to fill out.",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 12,
+    "raw_data": {
+      "PRELIST": "FInd out from Jason what rent is currently ",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 13,
+    "raw_data": {
+      "PRELIST": "CMA",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 14,
+    "raw_data": {
+      "PRELIST": "Calvin has sent the bid to Kevin",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 15,
+    "raw_data": {
+      "PRELIST": "Calvin provided W-9 on 2/3, has not received ACH but Kevin sais a paper check was mailed",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 16,
+    "raw_data": {
+      "PRELIST": "Tenant to remove dogs and prepare their unit for photos by the 17th ",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 17,
+    "raw_data": {
+      "PRELIST": "Starting eviction process ",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 18,
+    "raw_data": {
+      "PRELIST": "3/25 sent email to Jason asking for update",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 19,
+    "raw_data": {
+      "PRELIST": "4/19 Sent email for update of eviction",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 20,
+    "raw_data": {
+      "PRELIST": "5/5 Eviction court date ",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 21,
+    "raw_data": {
+      "PRELIST": "6/2 Per Jason eviction to be executed this week",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "2131-2133 Stansbury",
+    "row_number": 22,
+    "raw_data": {
+      "PRELIST": "WRIT for final eviction set for 6/20, then will clear and clean it to list, may need ozone ",
+      "LISTING": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3838 Oregon",
+    "row_number": 1,
+    "raw_data": {
+      "PRELIST": "Geraldo to rehab",
+      "LIST": "Listed 129,900",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3838 Oregon",
+    "row_number": 2,
+    "raw_data": {
+      "PRELIST": "Expected finish 2/1 ",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3838 Oregon",
+    "row_number": 3,
+    "raw_data": {
+      "PRELIST": "TASK walk rehab Fri 1/24 to assess",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3838 Oregon",
+    "row_number": 4,
+    "raw_data": {
+      "PRELIST": "NOTE project over budget due to Duct, assessing city requirement of new waterline",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3838 Oregon",
+    "row_number": 5,
+    "raw_data": {
+      "PRELIST": "and city requirement to replace framing",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "3838 Oregon",
+    "row_number": 6,
+    "raw_data": {
+      "PRELIST": "Site visit 4/17, projected to be complete 4/31, sent email with project questions ",
+      "LIST": "",
+      "UNDER CONTRACT": ""
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "Process",
+    "row_number": 1,
+    "raw_data": {
+      "DAY 1": "     Drive By"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "Process",
+    "row_number": 2,
+    "raw_data": {
+      "DAY 1": "        Take Pictures"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "Process",
+    "row_number": 3,
+    "raw_data": {
+      "DAY 1": "         If tenant occupied get contact info, explain the property has a new owner and say they will be contacted by the owner"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "Process",
+    "row_number": 4,
+    "raw_data": {
+      "DAY 1": "         Have locksmith change locks "
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "Process",
+    "row_number": 5,
+    "raw_data": {
+      "DAY 1": "               use local, bill Trident, use code 1769, expect to pay 300-500 per property"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "Process",
+    "row_number": 6,
+    "raw_data": {
+      "DAY 1": "WITHIN 1 WEEK"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "Process",
+    "row_number": 7,
+    "raw_data": {
+      "DAY 1": "      Written sales plan that includes BPO (RPR report) "
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "Process",
+    "row_number": 8,
+    "raw_data": {
+      "DAY 1": "       Listing agreement for 180 days"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "Process",
+    "row_number": 9,
+    "raw_data": {
+      "DAY 1": "       List Property"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "Process",
+    "row_number": 10,
+    "raw_data": {
+      "DAY 1": "EVERY 30 DAYS"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "Process",
+    "row_number": 11,
+    "raw_data": {
+      "DAY 1": "       Drop price by 10k after approval"
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  },
+  {
+    "source_sheet": "Process",
+    "row_number": 12,
+    "raw_data": {
+      "DAY 1": "       Asses for sales strategy change (rehab, lease, etc) "
+    },
+    "workflow_type": "Conventional",
+    "status": "Active"
+  }
+]
