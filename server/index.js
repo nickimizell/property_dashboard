@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { Pool } = require('pg');
+const { seedDatabase } = require('./seed-db');
 require('dotenv').config();
 
 const app = express();
@@ -402,11 +403,30 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-// Start server
-app.listen(port, () => {
-  console.log(`OOTB Property Full-Stack App running on port ${port}`);
-  console.log(`Frontend: http://localhost:${port}`);
-  console.log(`API: http://localhost:${port}/api`);
-});
+// Initialize database and start server
+async function startServer() {
+  try {
+    // Seed database on startup
+    if (process.env.DATABASE_URL) {
+      console.log('🗄️ Initializing database...');
+      await seedDatabase();
+    } else {
+      console.log('⚠️ No DATABASE_URL found - running in localStorage mode');
+    }
+    
+    // Start server
+    app.listen(port, () => {
+      console.log(`🚀 OOTB Property Full-Stack App running on port ${port}`);
+      console.log(`📱 Frontend: http://localhost:${port}`);
+      console.log(`🔌 API: http://localhost:${port}/api`);
+      console.log(`❤️ Health: http://localhost:${port}/health`);
+    });
+  } catch (error) {
+    console.error('💥 Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 module.exports = app;
