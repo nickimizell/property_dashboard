@@ -398,6 +398,122 @@ app.put('/api/tasks/:id/complete', async (req, res) => {
   }
 });
 
+// Database migration endpoint for transaction coordinator tables
+app.post('/api/database/migrate-transaction-tables', async (req, res) => {
+  try {
+    console.log('🔄 Creating transaction coordinator tables...');
+    
+    const client = await pool.connect();
+    try {
+      // Create transaction documents table
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS transaction_documents (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+          category TEXT NOT NULL CHECK (category IN ('Listing Agreement', 'Property Disclosures', 'Inspection Reports', 'Appraisal Documents', 'Contract & Amendments', 'Title Documents', 'Other')),
+          document_name TEXT NOT NULL,
+          file_path TEXT,
+          file_size INTEGER,
+          file_type TEXT,
+          status TEXT NOT NULL CHECK (status IN ('pending', 'review', 'complete')) DEFAULT 'pending',
+          uploaded_by UUID REFERENCES users(id),
+          notes TEXT,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        )
+      `);
+
+      // Create transaction parties table
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS transaction_parties (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+          role TEXT NOT NULL CHECK (role IN ('Seller', 'Selling Agent', 'Buyer', 'Buyer Agent', 'Title Company', 'Lender', 'Inspector', 'Appraiser', 'Other')),
+          name TEXT NOT NULL,
+          email TEXT,
+          phone TEXT,
+          company TEXT,
+          status TEXT NOT NULL CHECK (status IN ('active', 'pending', 'inactive')) DEFAULT 'pending',
+          notes TEXT,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        )
+      `);
+
+      // Create transaction workflow table
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS transaction_workflow (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+          phase TEXT NOT NULL CHECK (phase IN ('Pre-Listing', 'Active Marketing', 'Under Contract', 'Closing')),
+          task_name TEXT NOT NULL,
+          status TEXT NOT NULL CHECK (status IN ('pending', 'in-progress', 'complete')) DEFAULT 'pending',
+          due_date DATE,
+          completed_date DATE,
+          assigned_to UUID REFERENCES users(id),
+          notes TEXT,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        )
+      `);
+
+      // Create transaction timeline table
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS transaction_timeline (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+          event_type TEXT NOT NULL CHECK (event_type IN ('milestone', 'update', 'event', 'deadline')),
+          title TEXT NOT NULL,
+          description TEXT,
+          event_date DATE NOT NULL,
+          status TEXT NOT NULL CHECK (status IN ('complete', 'upcoming', 'overdue')) DEFAULT 'upcoming',
+          created_by UUID REFERENCES users(id),
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        )
+      `);
+
+      // Create indexes
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_transaction_documents_property_id ON transaction_documents(property_id);
+        CREATE INDEX IF NOT EXISTS idx_transaction_documents_category ON transaction_documents(category);
+        CREATE INDEX IF NOT EXISTS idx_transaction_parties_property_id ON transaction_parties(property_id);
+        CREATE INDEX IF NOT EXISTS idx_transaction_workflow_property_id ON transaction_workflow(property_id);
+        CREATE INDEX IF NOT EXISTS idx_transaction_timeline_property_id ON transaction_timeline(property_id);
+      `);
+
+      // Create triggers
+      await client.query(`
+        CREATE TRIGGER IF NOT EXISTS update_transaction_documents_updated_at 
+        BEFORE UPDATE ON transaction_documents
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+        
+        CREATE TRIGGER IF NOT EXISTS update_transaction_parties_updated_at 
+        BEFORE UPDATE ON transaction_parties
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+        
+        CREATE TRIGGER IF NOT EXISTS update_transaction_workflow_updated_at 
+        BEFORE UPDATE ON transaction_workflow
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+        
+        CREATE TRIGGER IF NOT EXISTS update_transaction_timeline_updated_at 
+        BEFORE UPDATE ON transaction_timeline
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+      `);
+
+      console.log('✅ Transaction coordinator tables created successfully');
+
+    } finally {
+      client.release();
+    }
+    
+    res.json({ success: true, message: 'Transaction coordinator tables created successfully' });
+  } catch (err) {
+    console.error('Transaction tables migration error:', err);
+    res.status(500).json({ error: 'Failed to create transaction tables: ' + err.message });
+  }
+});
+
 // Database migration endpoint for users table
 app.post('/api/database/migrate-users', async (req, res) => {
   try {
@@ -827,6 +943,239 @@ app.post('/api/auth/reset-password', async (req, res) => {
   } catch (err) {
     console.error('Reset password error:', err);
     res.status(500).json({ error: 'Failed to reset password' });
+  }
+});
+
+// Transaction Coordinator API Endpoints
+
+// Get transaction documents for a property
+app.get('/api/transaction/:propertyId/documents', authenticateToken, async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    
+    const result = await pool.query(`
+      SELECT td.*, u.name as uploaded_by_name
+      FROM transaction_documents td
+      LEFT JOIN users u ON td.uploaded_by = u.id
+      WHERE td.property_id = $1
+      ORDER BY td.category, td.created_at DESC
+    `, [propertyId]);
+
+    // Group documents by category
+    const documentsByCategory = result.rows.reduce((acc, doc) => {
+      if (!acc[doc.category]) {
+        acc[doc.category] = [];
+      }
+      acc[doc.category].push({
+        id: doc.id,
+        documentName: doc.document_name,
+        filePath: doc.file_path,
+        fileSize: doc.file_size,
+        fileType: doc.file_type,
+        status: doc.status,
+        uploadedBy: doc.uploaded_by_name,
+        notes: doc.notes,
+        createdAt: doc.created_at,
+        updatedAt: doc.updated_at
+      });
+      return acc;
+    }, {});
+
+    res.json(documentsByCategory);
+  } catch (err) {
+    console.error('Transaction documents fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch transaction documents' });
+  }
+});
+
+// Get transaction parties for a property
+app.get('/api/transaction/:propertyId/parties', authenticateToken, async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    
+    const result = await pool.query(`
+      SELECT * FROM transaction_parties
+      WHERE property_id = $1
+      ORDER BY 
+        CASE role
+          WHEN 'Seller' THEN 1
+          WHEN 'Selling Agent' THEN 2
+          WHEN 'Buyer' THEN 3
+          WHEN 'Buyer Agent' THEN 4
+          WHEN 'Title Company' THEN 5
+          WHEN 'Lender' THEN 6
+          ELSE 7
+        END
+    `, [propertyId]);
+
+    const parties = result.rows.map(row => ({
+      id: row.id,
+      role: row.role,
+      name: row.name,
+      email: row.email,
+      phone: row.phone,
+      company: row.company,
+      status: row.status,
+      notes: row.notes,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
+
+    res.json(parties);
+  } catch (err) {
+    console.error('Transaction parties fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch transaction parties' });
+  }
+});
+
+// Get transaction workflow for a property
+app.get('/api/transaction/:propertyId/workflow', authenticateToken, async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    
+    const result = await pool.query(`
+      SELECT tw.*, u.name as assigned_to_name
+      FROM transaction_workflow tw
+      LEFT JOIN users u ON tw.assigned_to = u.id
+      WHERE tw.property_id = $1
+      ORDER BY 
+        CASE phase
+          WHEN 'Pre-Listing' THEN 1
+          WHEN 'Active Marketing' THEN 2
+          WHEN 'Under Contract' THEN 3
+          WHEN 'Closing' THEN 4
+        END,
+        tw.created_at
+    `, [propertyId]);
+
+    // Group workflow tasks by phase
+    const workflowByPhase = result.rows.reduce((acc, task) => {
+      if (!acc[task.phase]) {
+        acc[task.phase] = [];
+      }
+      acc[task.phase].push({
+        id: task.id,
+        taskName: task.task_name,
+        status: task.status,
+        dueDate: task.due_date,
+        completedDate: task.completed_date,
+        assignedTo: task.assigned_to_name,
+        notes: task.notes,
+        createdAt: task.created_at,
+        updatedAt: task.updated_at
+      });
+      return acc;
+    }, {});
+
+    res.json(workflowByPhase);
+  } catch (err) {
+    console.error('Transaction workflow fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch transaction workflow' });
+  }
+});
+
+// Get transaction timeline for a property
+app.get('/api/transaction/:propertyId/timeline', authenticateToken, async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    
+    const result = await pool.query(`
+      SELECT tt.*, u.name as created_by_name
+      FROM transaction_timeline tt
+      LEFT JOIN users u ON tt.created_by = u.id
+      WHERE tt.property_id = $1
+      ORDER BY tt.event_date DESC, tt.created_at DESC
+    `, [propertyId]);
+
+    const timeline = result.rows.map(row => ({
+      id: row.id,
+      eventType: row.event_type,
+      title: row.title,
+      description: row.description,
+      eventDate: row.event_date,
+      status: row.status,
+      createdBy: row.created_by_name,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
+
+    res.json(timeline);
+  } catch (err) {
+    console.error('Transaction timeline fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch transaction timeline' });
+  }
+});
+
+// Add transaction party
+app.post('/api/transaction/:propertyId/parties', authenticateToken, async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    const { role, name, email, phone, company, status, notes } = req.body;
+
+    if (!role || !name) {
+      return res.status(400).json({ error: 'Role and name are required' });
+    }
+
+    const result = await pool.query(`
+      INSERT INTO transaction_parties (property_id, role, name, email, phone, company, status, notes)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING *
+    `, [propertyId, role, name, email, phone, company, status || 'pending', notes]);
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Add transaction party error:', err);
+    res.status(500).json({ error: 'Failed to add transaction party' });
+  }
+});
+
+// Update transaction workflow task
+app.put('/api/transaction/workflow/:taskId', authenticateToken, async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const { status, notes } = req.body;
+
+    const result = await pool.query(`
+      UPDATE transaction_workflow SET 
+        status = COALESCE($1, status),
+        completed_date = CASE WHEN $1 = 'complete' THEN NOW() ELSE completed_date END,
+        notes = COALESCE($2, notes),
+        updated_at = NOW()
+      WHERE id = $3
+      RETURNING *
+    `, [status, notes, taskId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Workflow task not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Update workflow task error:', err);
+    res.status(500).json({ error: 'Failed to update workflow task' });
+  }
+});
+
+// Add timeline event
+app.post('/api/transaction/:propertyId/timeline', authenticateToken, async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    const { eventType, title, description, eventDate, status } = req.body;
+
+    if (!eventType || !title || !eventDate) {
+      return res.status(400).json({ error: 'Event type, title, and event date are required' });
+    }
+
+    const result = await pool.query(`
+      INSERT INTO transaction_timeline (property_id, event_type, title, description, event_date, status, created_by)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *
+    `, [propertyId, eventType, title, description, eventDate, status || 'upcoming', req.user.id]);
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Add timeline event error:', err);
+    res.status(500).json({ error: 'Failed to add timeline event' });
   }
 });
 

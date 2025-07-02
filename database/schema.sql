@@ -93,6 +93,68 @@ CREATE TABLE activity_log (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Transaction coordinator tables
+
+-- Transaction documents table
+CREATE TABLE transaction_documents (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    category TEXT NOT NULL CHECK (category IN ('Listing Agreement', 'Property Disclosures', 'Inspection Reports', 'Appraisal Documents', 'Contract & Amendments', 'Title Documents', 'Other')),
+    document_name TEXT NOT NULL,
+    file_path TEXT,
+    file_size INTEGER,
+    file_type TEXT,
+    status TEXT NOT NULL CHECK (status IN ('pending', 'review', 'complete')) DEFAULT 'pending',
+    uploaded_by UUID REFERENCES users(id),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Transaction parties table
+CREATE TABLE transaction_parties (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    role TEXT NOT NULL CHECK (role IN ('Seller', 'Selling Agent', 'Buyer', 'Buyer Agent', 'Title Company', 'Lender', 'Inspector', 'Appraiser', 'Other')),
+    name TEXT NOT NULL,
+    email TEXT,
+    phone TEXT,
+    company TEXT,
+    status TEXT NOT NULL CHECK (status IN ('active', 'pending', 'inactive')) DEFAULT 'pending',
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Transaction workflow table
+CREATE TABLE transaction_workflow (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    phase TEXT NOT NULL CHECK (phase IN ('Pre-Listing', 'Active Marketing', 'Under Contract', 'Closing')),
+    task_name TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('pending', 'in-progress', 'complete')) DEFAULT 'pending',
+    due_date DATE,
+    completed_date DATE,
+    assigned_to UUID REFERENCES users(id),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Transaction timeline table
+CREATE TABLE transaction_timeline (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    event_type TEXT NOT NULL CHECK (event_type IN ('milestone', 'update', 'event', 'deadline')),
+    title TEXT NOT NULL,
+    description TEXT,
+    event_date DATE NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('complete', 'upcoming', 'overdue')) DEFAULT 'upcoming',
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Indexes for better performance
 CREATE INDEX idx_properties_status ON properties(status);
 CREATE INDEX idx_properties_listing_date ON properties(listing_date);
@@ -104,6 +166,19 @@ CREATE INDEX idx_tasks_due_date ON tasks(due_date);
 CREATE INDEX idx_tasks_category ON tasks(category);
 CREATE INDEX idx_activity_log_property_id ON activity_log(property_id);
 CREATE INDEX idx_activity_log_created_at ON activity_log(created_at);
+
+-- Transaction coordinator indexes
+CREATE INDEX idx_transaction_documents_property_id ON transaction_documents(property_id);
+CREATE INDEX idx_transaction_documents_category ON transaction_documents(category);
+CREATE INDEX idx_transaction_documents_status ON transaction_documents(status);
+CREATE INDEX idx_transaction_parties_property_id ON transaction_parties(property_id);
+CREATE INDEX idx_transaction_parties_role ON transaction_parties(role);
+CREATE INDEX idx_transaction_workflow_property_id ON transaction_workflow(property_id);
+CREATE INDEX idx_transaction_workflow_phase ON transaction_workflow(phase);
+CREATE INDEX idx_transaction_workflow_status ON transaction_workflow(status);
+CREATE INDEX idx_transaction_timeline_property_id ON transaction_timeline(property_id);
+CREATE INDEX idx_transaction_timeline_event_date ON transaction_timeline(event_date);
+CREATE INDEX idx_transaction_timeline_status ON transaction_timeline(status);
 
 -- Update timestamp trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -125,6 +200,19 @@ CREATE TRIGGER update_tasks_updated_at BEFORE UPDATE ON tasks
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Transaction coordinator triggers
+CREATE TRIGGER update_transaction_documents_updated_at BEFORE UPDATE ON transaction_documents
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_transaction_parties_updated_at BEFORE UPDATE ON transaction_parties
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_transaction_workflow_updated_at BEFORE UPDATE ON transaction_workflow
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_transaction_timeline_updated_at BEFORE UPDATE ON transaction_timeline
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Insert sample data (convert from existing mock data)
@@ -246,6 +334,73 @@ INSERT INTO users (
     'Admin',
     TRUE
 );
+
+-- Insert sample transaction coordinator data
+INSERT INTO transaction_parties (
+    property_id, role, name, email, phone, company, status
+) VALUES 
+-- Property 1 parties
+('550e8400-e29b-41d4-a716-446655440001', 'Seller', 'Johnson Investment Group', 'contact@johnsoninvest.com', '(217) 555-0123', 'Johnson Investment Group', 'active'),
+('550e8400-e29b-41d4-a716-446655440001', 'Selling Agent', 'Sarah Johnson', 'sarah@ootbproperties.com', '(217) 555-0456', 'Out Of The Box Properties', 'active'),
+('550e8400-e29b-41d4-a716-446655440001', 'Buyer', 'The Smith Family', 'john.smith@email.com', '(217) 555-0789', '', 'active'),
+('550e8400-e29b-41d4-a716-446655440001', 'Buyer Agent', 'Mark Thompson', 'mark@realestate.com', '(217) 555-0321', 'Springfield Realty', 'active'),
+-- Property 2 parties
+('550e8400-e29b-41d4-a716-446655440002', 'Seller', 'Miller Family Trust', 'miller.trust@email.com', '(217) 555-0654', 'Miller Family Trust', 'active'),
+('550e8400-e29b-41d4-a716-446655440002', 'Selling Agent', 'Michael Chen', 'michael@ootbproperties.com', '(217) 555-0987', 'Out Of The Box Properties', 'active');
+
+INSERT INTO transaction_documents (
+    property_id, category, document_name, status, uploaded_by
+) VALUES 
+-- Property 1 documents
+('550e8400-e29b-41d4-a716-446655440001', 'Listing Agreement', 'Listing_Agreement_123_Main_St.pdf', 'complete', '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'Property Disclosures', 'Property_Disclosure_Statement.pdf', 'complete', '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'Property Disclosures', 'Lead_Based_Paint_Disclosure.pdf', 'complete', '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'Contract & Amendments', 'Purchase_Agreement.pdf', 'review', '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'Contract & Amendments', 'Amendment_1_Inspection_Items.pdf', 'review', '550e8400-e29b-41d4-a716-446655440401'),
+-- Property 2 documents
+('550e8400-e29b-41d4-a716-446655440002', 'Listing Agreement', 'Listing_Agreement_456_Oak_Ave.pdf', 'complete', '550e8400-e29b-41d4-a716-446655440402'),
+('550e8400-e29b-41d4-a716-446655440002', 'Property Disclosures', 'Property_Disclosure_Statement.pdf', 'complete', '550e8400-e29b-41d4-a716-446655440402');
+
+INSERT INTO transaction_workflow (
+    property_id, phase, task_name, status, due_date, assigned_to
+) VALUES 
+-- Property 1 workflow (Under Contract)
+('550e8400-e29b-41d4-a716-446655440001', 'Pre-Listing', 'Property Photos', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'Pre-Listing', 'Market Analysis', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'Pre-Listing', 'Listing Agreement', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'Pre-Listing', 'MLS Listing', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'Active Marketing', 'Schedule Showings', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'Active Marketing', 'Track Interest', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'Under Contract', 'Execute Contract', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'Under Contract', 'Schedule Inspection', 'in-progress', '2025-01-18', '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'Under Contract', 'Coordinate Appraisal', 'pending', '2025-01-30', '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'Under Contract', 'Title Work', 'pending', '2025-01-25', '550e8400-e29b-41d4-a716-446655440401'),
+-- Property 2 workflow (Under Contract)
+('550e8400-e29b-41d4-a716-446655440002', 'Pre-Listing', 'Property Photos', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440402'),
+('550e8400-e29b-41d4-a716-446655440002', 'Pre-Listing', 'Market Analysis', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440402'),
+('550e8400-e29b-41d4-a716-446655440002', 'Pre-Listing', 'Listing Agreement', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440402'),
+('550e8400-e29b-41d4-a716-446655440002', 'Pre-Listing', 'MLS Listing', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440402'),
+('550e8400-e29b-41d4-a716-446655440002', 'Active Marketing', 'Schedule Showings', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440402'),
+('550e8400-e29b-41d4-a716-446655440002', 'Under Contract', 'Execute Contract', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440402'),
+('550e8400-e29b-41d4-a716-446655440002', 'Under Contract', 'Schedule Inspection', 'complete', NULL, '550e8400-e29b-41d4-a716-446655440402'),
+('550e8400-e29b-41d4-a716-446655440002', 'Under Contract', 'Coordinate Appraisal', 'in-progress', '2025-01-22', '550e8400-e29b-41d4-a716-446655440402');
+
+INSERT INTO transaction_timeline (
+    property_id, event_type, title, description, event_date, status, created_by
+) VALUES 
+-- Property 1 timeline
+('550e8400-e29b-41d4-a716-446655440001', 'milestone', 'Property Listed', 'Listed on MLS at $299,000', '2024-12-15', 'complete', '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'update', 'Price Reduction', 'Reduced to $289,000', '2025-01-05', 'complete', '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'milestone', 'Under Contract', 'Accepted offer for $285,000', '2025-01-10', 'complete', '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'event', 'Home Inspection', 'Scheduled inspection with ABC Inspections', '2025-01-18', 'upcoming', '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'deadline', 'Appraisal Due', 'Appraisal must be completed', '2025-01-30', 'upcoming', '550e8400-e29b-41d4-a716-446655440401'),
+('550e8400-e29b-41d4-a716-446655440001', 'milestone', 'Closing Date', 'Scheduled closing at title company', '2025-02-15', 'upcoming', '550e8400-e29b-41d4-a716-446655440401'),
+-- Property 2 timeline
+('550e8400-e29b-41d4-a716-446655440002', 'milestone', 'Property Listed', 'Listed on MLS at $335,000', '2024-11-20', 'complete', '550e8400-e29b-41d4-a716-446655440402'),
+('550e8400-e29b-41d4-a716-446655440002', 'update', 'Price Reduction', 'Reduced to $325,000', '2024-12-20', 'complete', '550e8400-e29b-41d4-a716-446655440402'),
+('550e8400-e29b-41d4-a716-446655440002', 'milestone', 'Under Contract', 'Accepted offer for $320,000', '2025-01-05', 'complete', '550e8400-e29b-41d4-a716-446655440402'),
+('550e8400-e29b-41d4-a716-446655440002', 'event', 'Appraisal Scheduled', 'Appraisal scheduled for January 22', '2025-01-22', 'upcoming', '550e8400-e29b-41d4-a716-446655440402'),
+('550e8400-e29b-41d4-a716-446655440002', 'milestone', 'Closing Date', 'Scheduled closing at title company', '2025-01-28', 'upcoming', '550e8400-e29b-41d4-a716-446655440402');
 
 -- Create a view for dashboard statistics
 CREATE VIEW dashboard_stats AS

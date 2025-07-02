@@ -1,0 +1,46 @@
+2025-07-02T00:15:53.080855558Z ==> Cloning from https://github.com/nickimizell/property_dashboard
+2025-07-02T00:15:53.663344449Z ==> Checking out commit c97377b76b1233ab9b4aab4cf9dbb2a38da85618 in branch master
+2025-07-02T00:15:54.745194628Z ==> Downloading cache...
+2025-07-02T00:16:05.170324867Z ==> Transferred 104MB in 8s. Extraction took 2s.
+2025-07-02T00:16:08.339063301Z ==> Using Node.js version 22.16.0 (default)
+2025-07-02T00:16:08.366368061Z ==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+2025-07-02T00:16:08.521938753Z ==> Using Bun version 1.1.0 (default)
+2025-07-02T00:16:08.521959635Z ==> Docs on specifying a Bun version: https://render.com/docs/bun-version
+2025-07-02T00:16:08.585033431Z ==> Running build command 'npm install && npm run build'...
+2025-07-02T00:16:17.51660506Z 
+2025-07-02T00:16:17.516629062Z added 2 packages, and audited 357 packages in 9s
+2025-07-02T00:16:17.516639303Z 
+2025-07-02T00:16:17.516649734Z 69 packages are looking for funding
+2025-07-02T00:16:17.516653404Z   run `npm fund` for details
+2025-07-02T00:16:17.535497839Z 
+2025-07-02T00:16:17.535527281Z 6 vulnerabilities (1 low, 4 moderate, 1 high)
+2025-07-02T00:16:17.535529312Z 
+2025-07-02T00:16:17.535531942Z To address all issues, run:
+2025-07-02T00:16:17.535533692Z   npm audit fix
+2025-07-02T00:16:17.535535282Z 
+2025-07-02T00:16:17.535537022Z Run `npm audit` for details.
+2025-07-02T00:16:17.694645484Z 
+2025-07-02T00:16:17.694669406Z > ootb-property-dashboard@1.0.0 build
+2025-07-02T00:16:17.694672176Z > vite build
+2025-07-02T00:16:17.694674426Z 
+2025-07-02T00:16:17.858477245Z The CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+2025-07-02T00:16:17.895753009Z vite v5.4.8 building for production...
+2025-07-02T00:16:17.948230639Z transforming...
+2025-07-02T00:16:18.165867403Z (node:165) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///opt/render/project/src/postcss.config.js is not specified and it doesn't parse as CommonJS.
+2025-07-02T00:16:18.165885094Z Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+2025-07-02T00:16:18.165887544Z To eliminate this warning, add "type": "module" to /opt/render/project/src/package.json.
+2025-07-02T00:16:18.165890614Z (Use `node --trace-warnings ...` to show where the warning was created)
+2025-07-02T00:16:18.190042958Z Browserslist: caniuse-lite is outdated. Please run:
+2025-07-02T00:16:18.190060259Z   npx update-browserslist-db@latest
+2025-07-02T00:16:18.19006359Z   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+2025-07-02T00:16:20.118600447Z ✓ 1486 modules transformed.
+2025-07-02T00:16:20.233359947Z rendering chunks...
+2025-07-02T00:16:20.240433896Z computing gzip size...
+2025-07-02T00:16:20.248124816Z dist/index.html                   0.49 kB │ gzip:  0.32 kB
+2025-07-02T00:16:20.248233655Z dist/assets/index-CGv-l7DE.css   24.06 kB │ gzip:  4.85 kB
+2025-07-02T00:16:20.248265688Z dist/assets/index-BT7XBhqz.js   262.44 kB │ gzip: 69.38 kB
+2025-07-02T00:16:20.248542132Z ✓ built in 2.33s
+2025-07-02T00:16:21.360438296Z ==> Uploading build...
+2025-07-02T00:16:27.714304672Z ==> Uploaded in 4.1s. Compression took 2.2s
+2025-07-02T00:16:27.734799546Z ==> Build successful 🎉
+2025-07-02T00:16:29.791391602Z ==> Deploying...
