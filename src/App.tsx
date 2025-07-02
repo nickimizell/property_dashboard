@@ -68,12 +68,6 @@ function AppContent() {
     }
   };
 
-  const handleLogin = (token: string, userData: any) => {
-    // Call the AuthContext login function
-    login(token, userData);
-    setCurrentView('dashboard');
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -86,7 +80,7 @@ function AppContent() {
   }
 
   if (!isAuthenticated) {
-    return <LoginPage onLogin={handleLogin} />;
+    return <LoginPage onLogin={login} />;
   }
 
   if (dataLoading) {
