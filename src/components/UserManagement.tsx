@@ -16,7 +16,6 @@ interface User {
 interface UserFormData {
   username: string;
   email: string;
-  password: string;
   name: string;
   role: 'Admin' | 'Agent' | 'Viewer';
 }
@@ -40,7 +39,6 @@ export const UserManagement: React.FC = () => {
   const [newUser, setNewUser] = useState<UserFormData>({
     username: '',
     email: '',
-    password: '',
     name: '',
     role: 'Agent'
   });
@@ -100,7 +98,7 @@ export const UserManagement: React.FC = () => {
         throw new Error(errorData.error || 'Failed to create user');
       }
 
-      setNewUser({ username: '', email: '', password: '', name: '', role: 'Agent' });
+      setNewUser({ username: '', email: '', name: '', role: 'Agent' });
       setShowAddUser(false);
       fetchUsers();
     } catch (err) {
@@ -328,15 +326,10 @@ export const UserManagement: React.FC = () => {
                     required
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                  <input
-                    type="password"
-                    value={newUser.password}
-                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  />
+                <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-700">
+                    <strong>📧 Email Invitation:</strong> The new user will receive an email invitation with instructions to set up their password and activate their account.
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>

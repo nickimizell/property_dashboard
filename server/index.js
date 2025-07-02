@@ -5,6 +5,7 @@ const { Pool } = require('pg');
 const { seedDatabase } = require('./seed-db');
 const { updatePropertyCoordinates, geocodeAddress } = require('./geocoding');
 const { hashPassword, comparePassword, generateToken, authenticateToken, requireRole } = require('./auth');
+const { sendUserInvitation, sendPasswordReset, generateSetupToken, testEmailConfig } = require('./emailService');
 require('dotenv').config();
 
 const app = express();
@@ -397,6 +398,87 @@ app.put('/api/tasks/:id/complete', async (req, res) => {
   }
 });
 
+// Database migration endpoint for users table
+app.post('/api/database/migrate-users', async (req, res) => {
+  try {
+    console.log('🔄 Creating users table and seeding with admin users...');
+    
+    const client = await pool.connect();
+    try {
+      // Create users table if it doesn't exist
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS users (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          username TEXT UNIQUE NOT NULL,
+          email TEXT UNIQUE NOT NULL,
+          password_hash TEXT,
+          name TEXT NOT NULL,
+          role TEXT NOT NULL CHECK (role IN ('Admin', 'Agent', 'Viewer')) DEFAULT 'Agent',
+          is_active BOOLEAN DEFAULT TRUE,
+          setup_token TEXT,
+          setup_token_expires TIMESTAMP WITH TIME ZONE,
+          reset_token TEXT,
+          reset_token_expires TIMESTAMP WITH TIME ZONE,
+          last_login TIMESTAMP WITH TIME ZONE,
+          password_changed_at TIMESTAMP WITH TIME ZONE,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        )
+      `);
+
+      // Create trigger for updated_at if it doesn't exist
+      await client.query(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_users_updated_at') THEN
+            CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
+              FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+          END IF;
+        END
+        $$;
+      `);
+
+      // Check if users already exist
+      const existingUsers = await client.query('SELECT COUNT(*) FROM users');
+      if (parseInt(existingUsers.rows[0].count) === 0) {
+        // Insert admin users (password is 'training1' hashed with bcrypt)
+        await client.query(`
+          INSERT INTO users (id, username, email, password_hash, name, role, is_active) VALUES 
+          (
+            '550e8400-e29b-41d4-a716-446655440401',
+            'mattmizell',
+            'matt.mizell@gmail.com',
+            '$2b$12$LQv3c1yqBwEHFAwKnzaOOeXYLZ8hT0G2UqK7eCj/YOEhXXNkHBZvy',
+            'Matt Mizell',
+            'Admin',
+            TRUE
+          ),
+          (
+            '550e8400-e29b-41d4-a716-446655440402',
+            'nickimizell',
+            'nicki@outofthebox.properties',
+            '$2b$12$LQv3c1yqBwEHFAwKnzaOOeXYLZ8hT0G2UqK7eCj/YOEhXXNkHBZvy',
+            'Nicki Mizell',
+            'Admin',
+            TRUE
+          )
+        `);
+        console.log('✅ Admin users created successfully');
+      } else {
+        console.log('ℹ️ Users table already contains data, skipping user creation');
+      }
+
+    } finally {
+      client.release();
+    }
+    
+    res.json({ success: true, message: 'Users table created and admin users seeded successfully' });
+  } catch (err) {
+    console.error('User migration error:', err);
+    res.status(500).json({ error: 'Failed to migrate users table: ' + err.message });
+  }
+});
+
 // Database management endpoints
 app.post('/api/database/reseed', async (req, res) => {
   try {
@@ -518,13 +600,13 @@ app.get('/api/users', authenticateToken, requireRole(['Admin']), async (req, res
   }
 });
 
-// Create user (admin only)
+// Create user (admin only) - sends invitation email
 app.post('/api/users', authenticateToken, requireRole(['Admin']), async (req, res) => {
   try {
-    const { username, email, password, name, role } = req.body;
+    const { username, email, name, role } = req.body;
 
-    if (!username || !email || !password || !name) {
-      return res.status(400).json({ error: 'Username, email, password, and name are required' });
+    if (!username || !email || !name) {
+      return res.status(400).json({ error: 'Username, email, and name are required' });
     }
 
     // Check if username or email already exists
@@ -537,17 +619,34 @@ app.post('/api/users', authenticateToken, requireRole(['Admin']), async (req, re
       return res.status(409).json({ error: 'Username or email already exists' });
     }
 
-    // Hash password
-    const passwordHash = await hashPassword(password);
+    // Generate setup token
+    const setupToken = generateSetupToken();
+    const setupTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Create user
+    // Create user without password (will be set via email invitation)
     const result = await pool.query(`
-      INSERT INTO users (username, email, password_hash, name, role)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO users (username, email, name, role, setup_token, setup_token_expires, is_active)
+      VALUES ($1, $2, $3, $4, $5, $6, false)
       RETURNING id, username, email, name, role, is_active, created_at
-    `, [username, email, passwordHash, name, role || 'Agent']);
+    `, [username, email, name, role || 'Agent', setupToken, setupTokenExpires]);
 
-    res.status(201).json(result.rows[0]);
+    const newUser = result.rows[0];
+
+    // Send invitation email
+    const emailSent = await sendUserInvitation({
+      ...newUser,
+      role: role || 'Agent'
+    }, setupToken);
+
+    if (!emailSent) {
+      console.warn('Failed to send invitation email, but user was created');
+    }
+
+    res.status(201).json({
+      ...newUser,
+      emailSent,
+      message: emailSent ? 'User created and invitation email sent' : 'User created but email failed to send'
+    });
   } catch (err) {
     console.error('Create user error:', err);
     res.status(500).json({ error: 'Failed to create user' });
@@ -599,6 +698,180 @@ app.put('/api/users/:id/password', authenticateToken, async (req, res) => {
   } catch (err) {
     console.error('Update password error:', err);
     res.status(500).json({ error: 'Failed to update password' });
+  }
+});
+
+// Setup password for new users (public endpoint with token)
+app.post('/api/auth/setup-password', async (req, res) => {
+  try {
+    const { token, username, password } = req.body;
+
+    if (!token || !username || !password) {
+      return res.status(400).json({ error: 'Token, username, and password are required' });
+    }
+
+    // Find user with valid setup token
+    const result = await pool.query(
+      'SELECT * FROM users WHERE username = $1 AND setup_token = $2 AND setup_token_expires > NOW()',
+      [username, token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid or expired setup token' });
+    }
+
+    const user = result.rows[0];
+
+    // Hash password
+    const passwordHash = await hashPassword(password);
+
+    // Update user with password and activate account
+    await pool.query(`
+      UPDATE users SET 
+        password_hash = $1, 
+        setup_token = NULL, 
+        setup_token_expires = NULL,
+        is_active = true,
+        password_changed_at = NOW()
+      WHERE id = $2
+    `, [passwordHash, user.id]);
+
+    res.json({ message: 'Password setup successful. You can now log in.' });
+  } catch (err) {
+    console.error('Setup password error:', err);
+    res.status(500).json({ error: 'Failed to setup password' });
+  }
+});
+
+// Request password reset (public endpoint)
+app.post('/api/auth/request-reset', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    // Find user by email
+    const result = await pool.query(
+      'SELECT * FROM users WHERE email = $1 AND is_active = true',
+      [email]
+    );
+
+    // Always return success for security (don't reveal if email exists)
+    if (result.rows.length === 0) {
+      return res.json({ message: 'If an account with this email exists, a reset link has been sent.' });
+    }
+
+    const user = result.rows[0];
+
+    // Generate reset token
+    const resetToken = generateSetupToken();
+    const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    // Save reset token
+    await pool.query(
+      'UPDATE users SET reset_token = $1, reset_token_expires = $2 WHERE id = $3',
+      [resetToken, resetTokenExpires, user.id]
+    );
+
+    // Send reset email
+    const emailSent = await sendPasswordReset(user, resetToken);
+
+    if (!emailSent) {
+      console.warn('Failed to send password reset email');
+    }
+
+    res.json({ message: 'If an account with this email exists, a reset link has been sent.' });
+  } catch (err) {
+    console.error('Request reset error:', err);
+    res.status(500).json({ error: 'Failed to process reset request' });
+  }
+});
+
+// Reset password with token (public endpoint)
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { token, username, password } = req.body;
+
+    if (!token || !username || !password) {
+      return res.status(400).json({ error: 'Token, username, and password are required' });
+    }
+
+    // Find user with valid reset token
+    const result = await pool.query(
+      'SELECT * FROM users WHERE username = $1 AND reset_token = $2 AND reset_token_expires > NOW()',
+      [username, token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    const user = result.rows[0];
+
+    // Hash password
+    const passwordHash = await hashPassword(password);
+
+    // Update password and clear reset token
+    await pool.query(`
+      UPDATE users SET 
+        password_hash = $1, 
+        reset_token = NULL, 
+        reset_token_expires = NULL,
+        password_changed_at = NOW()
+      WHERE id = $2
+    `, [passwordHash, user.id]);
+
+    res.json({ message: 'Password reset successful. You can now log in with your new password.' });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
+});
+
+// Resend invitation email (admin only)
+app.post('/api/users/:id/resend-invitation', authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Get user
+    const result = await pool.query(
+      'SELECT * FROM users WHERE id = $1',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = result.rows[0];
+
+    // If user already has password, don't resend setup invitation
+    if (user.password_hash) {
+      return res.status(400).json({ error: 'User has already set up their password' });
+    }
+
+    // Generate new setup token
+    const setupToken = generateSetupToken();
+    const setupTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // Update user with new token
+    await pool.query(
+      'UPDATE users SET setup_token = $1, setup_token_expires = $2 WHERE id = $3',
+      [setupToken, setupTokenExpires, id]
+    );
+
+    // Send invitation email
+    const emailSent = await sendUserInvitation(user, setupToken);
+
+    res.json({
+      success: emailSent,
+      message: emailSent ? 'Invitation email resent successfully' : 'Failed to send invitation email'
+    });
+  } catch (err) {
+    console.error('Resend invitation error:', err);
+    res.status(500).json({ error: 'Failed to resend invitation' });
   }
 });
 

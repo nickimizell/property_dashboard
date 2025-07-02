@@ -66,12 +66,16 @@ CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
+    password_hash TEXT,
     name TEXT NOT NULL,
     role TEXT NOT NULL CHECK (role IN ('Admin', 'Agent', 'Viewer')) DEFAULT 'Agent',
     is_active BOOLEAN DEFAULT TRUE,
+    setup_token TEXT,
+    setup_token_expires TIMESTAMP WITH TIME ZONE,
+    reset_token TEXT,
+    reset_token_expires TIMESTAMP WITH TIME ZONE,
     last_login TIMESTAMP WITH TIME ZONE,
-    password_changed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    password_changed_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
