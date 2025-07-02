@@ -8,7 +8,7 @@ import { hybridDataService } from './services/hybridDataService';
 import { Settings, LogOut, Users } from 'lucide-react';
 
 function AppContent() {
-  const { isAuthenticated, isLoading, user, logout } = useAuth();
+  const { isAuthenticated, isLoading, user, logout, login } = useAuth();
   const [properties, setProperties] = useState<Property[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
