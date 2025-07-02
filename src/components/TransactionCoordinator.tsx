@@ -343,6 +343,22 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
     }
   };
 
+  const handleZipFormsIntegration = async () => {
+    // Import the connector
+    const { zipFormsConnector } = await import('../utils/zipFormsConnector');
+    
+    // Prepare property data for zipForms
+    const propertyData = {
+      property: property,
+      parties: transactionData.parties,
+      workflow: transactionData.workflow,
+      documents: transactionData.documents
+    };
+    
+    // Launch zipForms with data
+    await zipFormsConnector.launchZipFormsWithData(propertyData);
+  };
+
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -430,6 +446,17 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
         {/* Content */}
         <div className="p-6">
           {renderContent()}
+        </div>
+
+        {/* ZipForms Integration Button */}
+        <div className="absolute top-6 right-20">
+          <button
+            onClick={() => handleZipFormsIntegration()}
+            className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            <FileText className="h-4 w-4" />
+            <span>Open in zipForms</span>
+          </button>
         </div>
       </div>
     </div>

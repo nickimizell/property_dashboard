@@ -1179,6 +1179,159 @@ app.post('/api/transaction/:propertyId/timeline', authenticateToken, async (req,
   }
 });
 
+// ZipForms Integration Endpoints
+
+// Handle zipForms data from browser extension or webhook
+app.post('/api/transaction/zipforms-webhook', async (req, res) => {
+  try {
+    const { type, data, source } = req.body;
+    console.log('Received zipForms data:', type, source);
+
+    if (type === 'form_completed') {
+      // Extract property identifier from form data
+      const propertyAddress = data.fields?.property_address || data.fields?.address;
+      if (!propertyAddress) {
+        return res.status(400).json({ error: 'Property address not found in form data' });
+      }
+
+      // Find property by address
+      const propertyResult = await pool.query(
+        'SELECT id FROM properties WHERE address ILIKE $1',
+        [`%${propertyAddress}%`]
+      );
+
+      if (propertyResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Property not found' });
+      }
+
+      const propertyId = propertyResult.rows[0].id;
+
+      // Determine document category based on form title or URL
+      let category = 'Other';
+      const formTitle = data.title?.toLowerCase() || '';
+      const formUrl = data.url?.toLowerCase() || '';
+      
+      if (formTitle.includes('listing') || formUrl.includes('listing')) {
+        category = 'Listing Agreement';
+      } else if (formTitle.includes('disclosure') || formUrl.includes('disclosure')) {
+        category = 'Property Disclosures';
+      } else if (formTitle.includes('purchase') || formUrl.includes('purchase') || formTitle.includes('contract')) {
+        category = 'Contract & Amendments';
+      } else if (formTitle.includes('inspection')) {
+        category = 'Inspection Reports';
+      } else if (formTitle.includes('appraisal')) {
+        category = 'Appraisal Documents';
+      } else if (formTitle.includes('title')) {
+        category = 'Title Documents';
+      }
+
+      // Create document record
+      const docResult = await pool.query(`
+        INSERT INTO transaction_documents (
+          property_id, category, document_name, status, 
+          zipforms_form_id, zipforms_status, zipforms_last_sync
+        ) VALUES ($1, $2, $3, $4, $5, $6, NOW())
+        RETURNING *
+      `, [
+        propertyId, 
+        category, 
+        data.title || 'ZipForms Document',
+        'complete',
+        data.url || '',
+        'synced'
+      ]);
+
+      // Add timeline event
+      await pool.query(`
+        INSERT INTO transaction_timeline (
+          property_id, event_type, title, description, event_date, status
+        ) VALUES ($1, $2, $3, $4, NOW(), $5)
+      `, [
+        propertyId,
+        'update',
+        'ZipForms Document Completed',
+        `${category} document completed in zipForms`,
+        'complete'
+      ]);
+
+      res.json({ 
+        success: true, 
+        documentId: docResult.rows[0].id,
+        message: 'Form data processed successfully' 
+      });
+    } else {
+      res.status(400).json({ error: 'Unknown webhook type' });
+    }
+  } catch (err) {
+    console.error('ZipForms webhook error:', err);
+    res.status(500).json({ error: 'Failed to process zipForms data' });
+  }
+});
+
+// Process zipForms return data from dashboard
+app.post('/api/transaction/process-zipforms-return', authenticateToken, async (req, res) => {
+  try {
+    const data = req.body;
+    
+    // Similar processing as webhook but with authentication
+    console.log('Processing zipForms return data');
+    
+    // Implementation would be similar to webhook handler above
+    // but with user context from authenticateToken
+    
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Process zipForms return error:', err);
+    res.status(500).json({ error: 'Failed to process return data' });
+  }
+});
+
+// Import zipForms PDF/file
+const multer = require('multer');
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+});
+
+app.post('/api/transaction/import-zipforms', authenticateToken, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const { propertyId } = req.body;
+    
+    // In production, you would:
+    // 1. Parse the PDF for form data
+    // 2. Store the file in cloud storage (S3, etc)
+    // 3. Extract metadata
+    
+    // For now, create a document record
+    const result = await pool.query(`
+      INSERT INTO transaction_documents (
+        property_id, category, document_name, file_type, file_size, status, uploaded_by
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *
+    `, [
+      propertyId,
+      'Other', // Would be determined by parsing
+      req.file.originalname,
+      req.file.mimetype,
+      req.file.size,
+      'complete',
+      req.user.id
+    ]);
+
+    res.json({
+      success: true,
+      document: result.rows[0]
+    });
+  } catch (err) {
+    console.error('Import zipForms error:', err);
+    res.status(500).json({ error: 'Failed to import file' });
+  }
+});
+
 // Resend invitation email (admin only)
 app.post('/api/users/:id/resend-invitation', authenticateToken, requireRole(['Admin']), async (req, res) => {
   try {

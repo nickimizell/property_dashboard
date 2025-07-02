@@ -107,6 +107,9 @@ CREATE TABLE transaction_documents (
     status TEXT NOT NULL CHECK (status IN ('pending', 'review', 'complete')) DEFAULT 'pending',
     uploaded_by UUID REFERENCES users(id),
     notes TEXT,
+    zipforms_form_id TEXT,
+    zipforms_status TEXT,
+    zipforms_last_sync TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "OOTB zipForms Integration",
+  "version": "1.0.0",
+  "description": "Seamlessly integrate zipForms with OOTB Property Dashboard",
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.zipformplus.com/*",
+    "https://*.ziplogix.com/*",
+    "http://localhost:3000/*",
+    "http://localhost:3001/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.zipformplus.com/*"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "externally_connectable": {
+    "matches": ["http://localhost:3000/*", "https://*.outofthebox.properties/*"]
+  }
+}
