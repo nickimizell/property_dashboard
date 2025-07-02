@@ -19,21 +19,10 @@ export class ZipFormsConnector {
 
   // Check if our browser extension is installed
   private checkBrowserExtension() {
-    if (typeof chrome !== 'undefined' && chrome.runtime) {
-      // Send message to extension to check if it's installed
-      try {
-        chrome.runtime.sendMessage(
-          'YOUR_EXTENSION_ID_HERE',
-          { type: 'ping' },
-          (response) => {
-            if (response && response.status === 'ok') {
-              this.browserExtensionId = 'YOUR_EXTENSION_ID_HERE';
-            }
-          }
-        );
-      } catch (e) {
-        console.log('ZipForms browser extension not detected');
-      }
+    // Extension communication is handled through localStorage and window.postMessage
+    // No need to check for specific extension ID since it's loaded locally
+    if (typeof window !== 'undefined') {
+      this.browserExtensionId = 'local-extension';
     }
   }
 
@@ -228,3 +217,4 @@ export class ZipFormsConnector {
 }
 
 export const zipFormsConnector = ZipFormsConnector.getInstance();
+export { ZipFormsConnector };

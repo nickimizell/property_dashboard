@@ -13,7 +13,8 @@
     "https://*.zipformplus.com/*",
     "https://*.ziplogix.com/*",
     "http://localhost:3000/*",
-    "http://localhost:3001/*"
+    "http://localhost:3001/*",
+    "https://*.onrender.com/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -34,6 +35,6 @@
     }
   },
   "externally_connectable": {
-    "matches": ["http://localhost:3000/*", "https://*.outofthebox.properties/*"]
+    "matches": ["http://localhost:3000/*", "https://*.outofthebox.properties/*", "https://*.onrender.com/*"]
   }
 }
