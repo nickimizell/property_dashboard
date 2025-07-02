@@ -401,13 +401,16 @@ app.put('/api/tasks/:id/complete', async (req, res) => {
 // Database migration endpoint for users table
 app.post('/api/database/migrate-users', async (req, res) => {
   try {
-    console.log('🔄 Creating users table and seeding with admin users...');
+    console.log('🔄 Creating/updating users table and seeding with admin users...');
     
     const client = await pool.connect();
     try {
-      // Create users table if it doesn't exist
+      // Drop existing users table if it exists (to handle schema changes)
+      await client.query('DROP TABLE IF EXISTS users CASCADE');
+      
+      // Create users table with complete schema
       await client.query(`
-        CREATE TABLE IF NOT EXISTS users (
+        CREATE TABLE users (
           id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
           username TEXT UNIQUE NOT NULL,
           email TEXT UNIQUE NOT NULL,
@@ -438,35 +441,29 @@ app.post('/api/database/migrate-users', async (req, res) => {
         $$;
       `);
 
-      // Check if users already exist
-      const existingUsers = await client.query('SELECT COUNT(*) FROM users');
-      if (parseInt(existingUsers.rows[0].count) === 0) {
-        // Insert admin users (password is 'training1' hashed with bcrypt)
-        await client.query(`
-          INSERT INTO users (id, username, email, password_hash, name, role, is_active) VALUES 
-          (
-            '550e8400-e29b-41d4-a716-446655440401',
-            'mattmizell',
-            'matt.mizell@gmail.com',
-            '$2b$12$LQv3c1yqBwEHFAwKnzaOOeXYLZ8hT0G2UqK7eCj/YOEhXXNkHBZvy',
-            'Matt Mizell',
-            'Admin',
-            TRUE
-          ),
-          (
-            '550e8400-e29b-41d4-a716-446655440402',
-            'nickimizell',
-            'nicki@outofthebox.properties',
-            '$2b$12$LQv3c1yqBwEHFAwKnzaOOeXYLZ8hT0G2UqK7eCj/YOEhXXNkHBZvy',
-            'Nicki Mizell',
-            'Admin',
-            TRUE
-          )
-        `);
-        console.log('✅ Admin users created successfully');
-      } else {
-        console.log('ℹ️ Users table already contains data, skipping user creation');
-      }
+      // Insert admin users (password is 'training1' hashed with bcrypt)
+      await client.query(`
+        INSERT INTO users (id, username, email, password_hash, name, role, is_active) VALUES 
+        (
+          '550e8400-e29b-41d4-a716-446655440401',
+          'mattmizell',
+          'matt.mizell@gmail.com',
+          '$2b$12$LQv3c1yqBwEHFAwKnzaOOeXYLZ8hT0G2UqK7eCj/YOEhXXNkHBZvy',
+          'Matt Mizell',
+          'Admin',
+          TRUE
+        ),
+        (
+          '550e8400-e29b-41d4-a716-446655440402',
+          'nickimizell',
+          'nicki@outofthebox.properties',
+          '$2b$12$LQv3c1yqBwEHFAwKnzaOOeXYLZ8hT0G2UqK7eCj/YOEhXXNkHBZvy',
+          'Nicki Mizell',
+          'Admin',
+          TRUE
+        )
+      `);
+      console.log('✅ Admin users created successfully');
 
     } finally {
       client.release();
