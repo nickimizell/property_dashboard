@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 300px;
+            height: 400px;
+            margin: 0;
+            padding: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: #3b82f6;
+            border-radius: 6px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .title {
+            font-weight: 600;
+            color: #111827;
+        }
+        .subtitle {
+            color: #6b7280;
+            font-size: 12px;
+        }
+        .status {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+        .status.connected {
+            background: #d1fae5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+        }
+        .status.disconnected {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .button {
+            width: 100%;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .button:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+        .button.primary {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        .button.primary:hover {
+            background: #2563eb;
+        }
+        .settings {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+        .toggle {
+            width: 36px;
+            height: 20px;
+            background: #d1d5db;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle.active {
+            background: #3b82f6;
+        }
+        .toggle::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+        .toggle.active::after {
+            transform: translateX(16px);
+        }
+        .footer {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 11px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">OB</div>
+        <div>
+            <div class="title">OOTB zipForms</div>
+            <div class="subtitle">Integration Extension</div>
+        </div>
+    </div>
+
+    <div id="status" class="status disconnected">
+        <span id="status-text">Checking connection...</span>
+    </div>
+
+    <button id="open-zipforms" class="button primary">Open zipForms</button>
+    <button id="sync-data" class="button">Sync Data</button>
+    <button id="test-connection" class="button">Test Connection</button>
+
+    <div class="settings">
+        <div class="setting-item">
+            <span>Auto-fill Forms</span>
+            <div id="autofill-toggle" class="toggle active"></div>
+        </div>
+        <div class="setting-item">
+            <span>Auto-capture</span>
+            <div id="autocapture-toggle" class="toggle active"></div>
+        </div>
+        <div class="setting-item">
+            <span>Dashboard URL:</span>
+        </div>
+        <input id="dashboard-url" type="text" value="http://localhost:3000" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px; margin-bottom: 8px;">
+    </div>
+
+    <div class="footer">
+        Version 1.0.0
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
