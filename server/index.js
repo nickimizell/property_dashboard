@@ -441,14 +441,17 @@ app.post('/api/database/migrate-users', async (req, res) => {
         $$;
       `);
 
-      // Insert admin users (password is 'training1' hashed with bcrypt)
+      // Generate proper password hash for 'training1'
+      const passwordHash = await hashPassword('training1');
+      
+      // Insert admin users with dynamically generated hash
       await client.query(`
         INSERT INTO users (id, username, email, password_hash, name, role, is_active) VALUES 
         (
           '550e8400-e29b-41d4-a716-446655440401',
           'mattmizell',
           'matt.mizell@gmail.com',
-          '$2b$12$LQv3c1yqBwEHFAwKnzaOOeXYLZ8hT0G2UqK7eCj/YOEhXXNkHBZvy',
+          $1,
           'Matt Mizell',
           'Admin',
           TRUE
@@ -457,13 +460,13 @@ app.post('/api/database/migrate-users', async (req, res) => {
           '550e8400-e29b-41d4-a716-446655440402',
           'nickimizell',
           'nicki@outofthebox.properties',
-          '$2b$12$LQv3c1yqBwEHFAwKnzaOOeXYLZ8hT0G2UqK7eCj/YOEhXXNkHBZvy',
+          $1,
           'Nicki Mizell',
           'Admin',
           TRUE
         )
-      `);
-      console.log('✅ Admin users created successfully');
+      `, [passwordHash]);
+      console.log('✅ Admin users created successfully with hash:', passwordHash.substring(0, 20) + '...');
 
     } finally {
       client.release();
