@@ -69,7 +69,8 @@ function AppContent() {
   };
 
   const handleLogin = (token: string, userData: any) => {
-    // Login is handled by AuthContext
+    // Call the AuthContext login function
+    login(token, userData);
     setCurrentView('dashboard');
   };
 

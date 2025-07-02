@@ -18,6 +18,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     setIsLoading(true);
 
     try {
+      console.log('Attempting login with:', { username, password });
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -25,6 +26,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         },
         body: JSON.stringify({ username, password }),
       });
+      console.log('Response status:', response.status);
 
       const data = await response.json();
 
