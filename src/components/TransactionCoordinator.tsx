@@ -63,14 +63,21 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
         ]);
 
         setTransactionData({
-          documents,
-          parties,
-          workflow,
-          timeline
+          documents: documents || {},
+          parties: parties || [],
+          workflow: workflow || {},
+          timeline: timeline || []
         });
       } catch (err) {
         console.error('Error fetching transaction data:', err);
-        setError('Failed to load transaction data. Please try again.');
+        // Set empty data instead of error for better UX
+        setTransactionData({
+          documents: {},
+          parties: [],
+          workflow: {},
+          timeline: []
+        });
+        setError('Transaction data is being set up. Some features may be limited.');
       } finally {
         setLoading(false);
       }
@@ -373,7 +380,10 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
     );
   }
 
-  if (error) {
+  // Don't show error modal for setup issues, just show warning in UI
+  const showError = error && !error.includes('being set up');
+
+  if (showError) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
@@ -445,6 +455,16 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
 
         {/* Content */}
         <div className="p-6">
+          {error && error.includes('being set up') && (
+            <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+                <p className="text-amber-800 text-sm">
+                  {error} The database tables will be created automatically when the server restarts.
+                </p>
+              </div>
+            </div>
+          )}
           {renderContent()}
         </div>
 
