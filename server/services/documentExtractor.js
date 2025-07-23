@@ -7,7 +7,6 @@ const pdfParse = require('pdf-parse');
 const Tesseract = require('tesseract.js');
 const mammoth = require('mammoth');
 const { Pool } = require('pg');
-const { LargeObjectManager } = require('pg-large-object');
 const crypto = require('crypto');
 
 class DocumentExtractor {
@@ -198,19 +197,19 @@ class DocumentExtractor {
                 return existingDoc.rows[0].id;
             }
 
-            // Store file as Large Object
-            const lom = new LargeObjectManager({ pg: client });
-            const [oid, stream] = await lom.createAndWritableStreamAsync();
+            // Store file as Large Object using PostgreSQL functions
+            const oidResult = await client.query('SELECT lo_create(0)');
+            const oid = oidResult.rows[0].lo_create;
+            
+            // Open large object for writing
+            const fdResult = await client.query('SELECT lo_open($1, $2)', [oid, 131072]); // 131072 = write mode
+            const fd = fdResult.rows[0].lo_open;
             
             // Write file data
-            stream.write(attachment.content);
-            stream.end();
-
-            // Wait for stream to finish
-            await new Promise((resolve, reject) => {
-                stream.on('finish', resolve);
-                stream.on('error', reject);
-            });
+            await client.query('SELECT lowrite($1, $2)', [fd, attachment.content]);
+            
+            // Close large object
+            await client.query('SELECT lo_close($1)', [fd]);
 
             // Prepare extracted information from Grok analysis
             let foundAddresses = [];
@@ -361,14 +360,22 @@ class DocumentExtractor {
 
             const doc = docResult.rows[0];
 
-            // Get file data from Large Object
-            const lom = new LargeObjectManager({ pg: client });
-            const [size, buffer] = await lom.readAsync(doc.file_oid);
+            // Get file data from Large Object using PostgreSQL functions
+            // Open large object for reading
+            const fdResult = await client.query('SELECT lo_open($1, $2)', [doc.file_oid, 262144]); // 262144 = read mode
+            const fd = fdResult.rows[0].lo_open;
+            
+            // Read file data
+            const readResult = await client.query('SELECT loread($1, $2)', [fd, doc.file_size]);
+            const buffer = readResult.rows[0].loread;
+            
+            // Close large object
+            await client.query('SELECT lo_close($1)', [fd]);
 
             return {
                 metadata: doc,
                 content: buffer,
-                size: size
+                size: doc.file_size
             };
 
         } catch (error) {
@@ -401,9 +408,8 @@ class DocumentExtractor {
 
             const oid = docResult.rows[0].file_oid;
 
-            // Delete Large Object
-            const lom = new LargeObjectManager({ pg: client });
-            await lom.unlinkAsync(oid);
+            // Delete Large Object using PostgreSQL function
+            await client.query('SELECT lo_unlink($1)', [oid]);
 
             // Delete document record
             await client.query('DELETE FROM email_document_storage WHERE id = $1', [documentId]);
