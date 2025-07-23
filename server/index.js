@@ -1029,12 +1029,15 @@ app.post('/api/transaction/:propertyId/documents/upload', authenticateToken, upl
       return res.status(400).json({ error: 'Document category is required' });
     }
     
-    // Save document metadata to database
+    // Store file content as base64 in database
+    const fileContent = req.file.buffer.toString('base64');
+    
+    // Save document with file content to database
     const result = await pool.query(`
       INSERT INTO transaction_documents (
         property_id, category, document_name, file_type, file_size, 
-        status, notes, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+        status, notes, file_content, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
       RETURNING *
     `, [
       propertyId,
@@ -1043,7 +1046,8 @@ app.post('/api/transaction/:propertyId/documents/upload', authenticateToken, upl
       req.file.mimetype,
       req.file.size,
       'complete',
-      notes || ''
+      notes || '',
+      fileContent
     ]);
     
     // Add timeline event
@@ -1071,9 +1075,9 @@ app.get('/api/transaction/documents/:documentId/download', authenticateToken, as
   try {
     const { documentId } = req.params;
     
-    // Get document info
+    // Get document info and content
     const docResult = await pool.query(`
-      SELECT document_name, file_type, file_size
+      SELECT document_name, file_type, file_size, file_content
       FROM transaction_documents
       WHERE id = $1
     `, [documentId]);
@@ -1084,17 +1088,61 @@ app.get('/api/transaction/documents/:documentId/download', authenticateToken, as
     
     const doc = docResult.rows[0];
     
-    // For now, just return document info since we're storing metadata only
-    // In future, this would stream actual file content
-    res.setHeader('Content-Type', 'application/json');
-    res.json({
-      message: 'Document download would occur here',
-      document: doc,
-      note: 'File storage integration needed for actual download'
-    });
+    if (!doc.file_content) {
+      return res.status(404).json({ error: 'File content not found' });
+    }
+    
+    // Convert base64 back to buffer
+    const fileBuffer = Buffer.from(doc.file_content, 'base64');
+    
+    // Set appropriate headers
+    res.setHeader('Content-Type', doc.file_type || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${doc.document_name}"`);
+    res.setHeader('Content-Length', fileBuffer.length);
+    
+    // Send the file
+    res.send(fileBuffer);
   } catch (err) {
     console.error('Document download error:', err);
     res.status(500).json({ error: 'Failed to download document' });
+  }
+});
+
+// View document endpoint (for inline viewing)
+app.get('/api/transaction/documents/:documentId/view', authenticateToken, async (req, res) => {
+  try {
+    const { documentId } = req.params;
+    
+    // Get document info and content
+    const docResult = await pool.query(`
+      SELECT document_name, file_type, file_size, file_content
+      FROM transaction_documents
+      WHERE id = $1
+    `, [documentId]);
+    
+    if (docResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    
+    const doc = docResult.rows[0];
+    
+    if (!doc.file_content) {
+      return res.status(404).json({ error: 'File content not found' });
+    }
+    
+    // Convert base64 back to buffer
+    const fileBuffer = Buffer.from(doc.file_content, 'base64');
+    
+    // Set appropriate headers for inline viewing
+    res.setHeader('Content-Type', doc.file_type || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `inline; filename="${doc.document_name}"`);
+    res.setHeader('Content-Length', fileBuffer.length);
+    
+    // Send the file
+    res.send(fileBuffer);
+  } catch (err) {
+    console.error('Document view error:', err);
+    res.status(500).json({ error: 'Failed to view document' });
   }
 });
 
@@ -1840,6 +1888,39 @@ app.post('/api/database/migrate-email-processing', async (req, res) => {
   } catch (error) {
     await client.query('ROLLBACK');
     console.error('❌ Email processing migration error:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Add file_content column migration
+app.post('/api/database/add-file-content-column', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    // Check if column already exists
+    const columnExists = await client.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'transaction_documents' 
+      AND column_name = 'file_content'
+    `);
+    
+    if (columnExists.rows.length === 0) {
+      // Add the file_content column
+      await client.query(`
+        ALTER TABLE transaction_documents 
+        ADD COLUMN file_content TEXT
+      `);
+      
+      console.log('✅ Added file_content column to transaction_documents');
+      res.json({ success: true, message: 'file_content column added successfully' });
+    } else {
+      console.log('✅ file_content column already exists');
+      res.json({ success: true, message: 'file_content column already exists' });
+    }
+  } catch (error) {
+    console.error('❌ Error adding file_content column:', error);
     res.status(500).json({ error: error.message });
   } finally {
     client.release();

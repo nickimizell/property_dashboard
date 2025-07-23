@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Property } from '../types';
-import { X, FileText, Users, CheckSquare, Calendar, Upload, Clock, AlertTriangle, Plus, Check, Phone, Mail, Building, Download } from 'lucide-react';
+import { X, FileText, Users, CheckSquare, Calendar, Upload, Clock, AlertTriangle, Plus, Check, Phone, Mail, Building, Download, Eye } from 'lucide-react';
 import { apiService } from '../services/apiService';
 
 interface TransactionCoordinatorProps {
@@ -312,6 +312,13 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
                           }`}>
                             {doc.status}
                           </span>
+                          <button 
+                            onClick={() => window.open(`/api/transaction/documents/${doc.id}/view`, '_blank')}
+                            className="p-1 text-gray-400 hover:text-green-600"
+                            title="View document"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
                           <button 
                             onClick={() => window.open(`/api/transaction/documents/${doc.id}/download`, '_blank')}
                             className="p-1 text-gray-400 hover:text-blue-600"
