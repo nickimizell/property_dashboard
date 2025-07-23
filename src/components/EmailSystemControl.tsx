@@ -192,53 +192,62 @@ export const EmailSystemControl: React.FC = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">System Controls</h3>
         
-        <div className="flex flex-wrap gap-3">
-          {!status?.isRunning ? (
+        <div className="space-y-4">
+          {/* Primary Action - Check Emails */}
+          <div>
             <button
-              onClick={startEmailProcessing}
+              onClick={processEmailsManually}
               disabled={actionLoading}
-              className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-lg shadow-lg transform transition hover:scale-105"
             >
-              <Play className="h-4 w-4" />
-              <span>{actionLoading ? 'Starting...' : 'Start Email Processing'}</span>
+              <Zap className="h-5 w-5" />
+              <span>📧 Check & Process Emails Now</span>
             </button>
-          ) : (
+            <p className="text-sm text-gray-600 mt-2">
+              Click to manually check Gmail and process any new real estate emails.
+            </p>
+          </div>
+
+          {/* System Controls */}
+          <div className="flex flex-wrap gap-3">
+            {!status?.isRunning ? (
+              <button
+                onClick={startEmailProcessing}
+                disabled={actionLoading}
+                className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Play className="h-4 w-4" />
+                <span>{actionLoading ? 'Starting...' : 'Start Email Processing'}</span>
+              </button>
+            ) : (
+              <button
+                onClick={stopEmailProcessing}
+                disabled={actionLoading}
+                className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Square className="h-4 w-4" />
+                <span>{actionLoading ? 'Stopping...' : 'Stop Email Processing'}</span>
+              </button>
+            )}
+            
             <button
-              onClick={stopEmailProcessing}
+              onClick={loadStatus}
               disabled={actionLoading}
-              className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Square className="h-4 w-4" />
-              <span>{actionLoading ? 'Stopping...' : 'Stop Email Processing'}</span>
+              <RefreshCw className={`h-4 w-4 ${actionLoading ? 'animate-spin' : ''}`} />
+              <span>Refresh Status</span>
             </button>
-          )}
-          
-          <button
-            onClick={loadStatus}
-            disabled={actionLoading}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <RefreshCw className={`h-4 w-4 ${actionLoading ? 'animate-spin' : ''}`} />
-            <span>Refresh Status</span>
-          </button>
 
-          <button
-            onClick={processEmailsManually}
-            disabled={actionLoading}
-            className="flex items-center space-x-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Zap className="h-4 w-4" />
-            <span>Process Now</span>
-          </button>
-
-          <button
-            onClick={runDatabaseMigration}
-            disabled={actionLoading}
-            className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Database className="h-4 w-4" />
-            <span>Run DB Migration</span>
-          </button>
+            <button
+              onClick={runDatabaseMigration}
+              disabled={actionLoading}
+              className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Database className="h-4 w-4" />
+              <span>Run DB Migration</span>
+            </button>
+          </div>
         </div>
 
         <div className="mt-4 p-3 bg-blue-50 rounded-lg">
