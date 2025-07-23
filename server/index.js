@@ -13,6 +13,13 @@ require('dotenv').config();
 const EmailProcessingOrchestrator = require('./services/emailProcessingOrchestrator');
 const GrokClient = require('./services/grokClient');
 
+// Multer for file uploads
+const multer = require('multer');
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+});
+
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -1403,12 +1410,6 @@ app.post('/api/transaction/process-zipforms-return', authenticateToken, async (r
 });
 
 // Import zipForms PDF/file
-const multer = require('multer');
-const upload = multer({ 
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
-});
-
 app.post('/api/transaction/import-zipforms', authenticateToken, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
