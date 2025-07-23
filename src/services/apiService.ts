@@ -392,6 +392,20 @@ class ApiService {
       throw error;
     }
   }
+
+  async deleteDocument(documentId: string): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/transaction/documents/${documentId}`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to delete document');
+      return await response.json();
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      throw error;
+    }
+  }
 }
 
 export const apiService = ApiService.getInstance();

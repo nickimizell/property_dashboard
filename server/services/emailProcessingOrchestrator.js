@@ -5,7 +5,7 @@
 
 const EmailProcessor = require('./emailProcessor');
 const GrokClient = require('./grokClient');
-const DocumentExtractor = require('./documentExtractor');
+const EnhancedDocumentExtractor = require('./enhancedDocumentExtractor');
 const PropertyMatcher = require('./propertyMatcher');
 const EmailResponder = require('./emailResponder');
 
@@ -16,7 +16,7 @@ class EmailProcessingOrchestrator {
         // Initialize all service components
         this.emailProcessor = new EmailProcessor(dbPool);
         this.grokClient = new GrokClient();
-        this.documentExtractor = new DocumentExtractor(dbPool);
+        this.documentExtractor = new EnhancedDocumentExtractor(dbPool, this.grokClient);
         this.propertyMatcher = new PropertyMatcher(dbPool);
         this.emailResponder = new EmailResponder(dbPool);
         

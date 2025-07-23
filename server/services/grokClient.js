@@ -441,6 +441,78 @@ Current Date: ${new Date().toISOString().split('T')[0]}`
     }
 
     /**
+     * Analyze document boundaries within multi-page PDF
+     */
+    async analyzeBoundaries(prompt) {
+        try {
+            console.log('🤖 Analyzing document boundaries with Grok...');
+            
+            const messages = [
+                {
+                    role: 'system',
+                    content: 'You are an expert at analyzing real estate documents and identifying where individual documents begin and end within multi-document PDFs. Always respond with valid JSON arrays only.'
+                },
+                {
+                    role: 'user',
+                    content: prompt
+                }
+            ];
+
+            const response = await this.makeApiCall(messages);
+            
+            if (response.choices && response.choices[0] && response.choices[0].message) {
+                const content = response.choices[0].message.content.trim();
+                
+                // Try to extract JSON from the response
+                const jsonMatch = content.match(/\[[\s\S]*\]/);
+                if (jsonMatch) {
+                    const boundaries = JSON.parse(jsonMatch[0]);
+                    console.log(`✅ Grok identified ${boundaries.length} document boundaries`);
+                    return boundaries;
+                }
+            }
+
+            return null;
+        } catch (error) {
+            console.error('❌ Grok boundary analysis error:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Analyze document type using AI
+     */
+    async analyzeDocumentType(prompt) {
+        try {
+            console.log('🤖 Analyzing document type with Grok...');
+            
+            const messages = [
+                {
+                    role: 'system',
+                    content: 'You are an expert at identifying real estate document types. Respond with only the document type, no additional text.'
+                },
+                {
+                    role: 'user',
+                    content: prompt
+                }
+            ];
+
+            const response = await this.makeApiCall(messages);
+            
+            if (response.choices && response.choices[0] && response.choices[0].message) {
+                const content = response.choices[0].message.content.trim();
+                console.log(`✅ Grok identified document type: ${content}`);
+                return content;
+            }
+
+            return 'other';
+        } catch (error) {
+            console.error('❌ Grok document type analysis error:', error);
+            return 'other';
+        }
+    }
+
+    /**
      * Test API connection
      */
     async testConnection() {

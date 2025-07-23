@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Property } from '../types';
-import { X, FileText, Users, CheckSquare, Calendar, Upload, Clock, AlertTriangle, Plus, Check, Phone, Mail, Building, Download, Eye } from 'lucide-react';
+import { X, FileText, Users, CheckSquare, Calendar, Upload, Clock, AlertTriangle, Plus, Check, Phone, Mail, Building, Download, Eye, Trash2 } from 'lucide-react';
 import { apiService } from '../services/apiService';
 
 interface TransactionCoordinatorProps {
@@ -234,6 +234,30 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
     }
   };
 
+  // Document deletion handler
+  const handleDeleteDocument = async (docId: string, docName: string) => {
+    if (!confirm(`Are you sure you want to delete "${docName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await apiService.deleteDocument(docId);
+      
+      // Refresh documents
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`/api/transaction/${property.id}/documents`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const documents = await response.json();
+      setTransactionData(prev => ({ ...prev, documents }));
+      
+      showNotification('success', `Document "${docName}" deleted successfully`);
+    } catch (err) {
+      console.error('Delete document error:', err);
+      showNotification('error', 'Failed to delete document. Please try again.');
+    }
+  };
+
   const getTabIcon = (tab: string) => {
     switch (tab) {
       case 'documents': return <FileText className="h-4 w-4" />;
@@ -325,6 +349,13 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
                             title="Download document"
                           >
                             <Download className="h-4 w-4" />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteDocument(doc.id, doc.document_name || doc.documentName || 'document')}
+                            className="p-1 text-gray-400 hover:text-red-600"
+                            title="Delete document"
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
                       </div>

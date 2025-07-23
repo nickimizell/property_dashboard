@@ -960,6 +960,47 @@ app.post('/api/auth/reset-password', async (req, res) => {
 
 // Transaction Coordinator API Endpoints
 
+// Delete transaction document
+app.delete('/api/transaction/documents/:documentId', authenticateToken, async (req, res) => {
+  try {
+    const { documentId } = req.params;
+    
+    // Check if document exists and get metadata
+    const checkResult = await pool.query(
+      'SELECT * FROM transaction_documents WHERE id = $1',
+      [documentId]
+    );
+
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
+    const document = checkResult.rows[0];
+
+    // Delete the document
+    const deleteResult = await pool.query(
+      'DELETE FROM transaction_documents WHERE id = $1 RETURNING *',
+      [documentId]
+    );
+
+    if (deleteResult.rows.length === 0) {
+      return res.status(500).json({ error: 'Failed to delete document' });
+    }
+
+    console.log(`🗑️ Deleted document: ${document.document_name} (ID: ${documentId})`);
+    
+    res.json({ 
+      success: true, 
+      message: 'Document deleted successfully',
+      documentName: document.document_name
+    });
+
+  } catch (err) {
+    console.error('Document deletion error:', err);
+    res.status(500).json({ error: 'Failed to delete document' });
+  }
+});
+
 // Get transaction documents for a property
 app.get('/api/transaction/:propertyId/documents', authenticateToken, async (req, res) => {
   try {
