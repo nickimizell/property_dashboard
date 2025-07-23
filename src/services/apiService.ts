@@ -346,6 +346,52 @@ class ApiService {
       throw error;
     }
   }
+
+  // Document view/download
+  async viewDocument(documentId: string): Promise<void> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/transaction/documents/${documentId}/view`, {
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to get document view URL');
+      
+      // Open in new tab
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      
+      // Clean up the URL object after a delay
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+    } catch (error) {
+      console.error('Error viewing document:', error);
+      throw error;
+    }
+  }
+
+  async downloadDocument(documentId: string, filename: string): Promise<void> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/transaction/documents/${documentId}/download`, {
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to download document');
+      
+      // Create download link
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the URL object
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      throw error;
+    }
+  }
 }
 
 export const apiService = ApiService.getInstance();

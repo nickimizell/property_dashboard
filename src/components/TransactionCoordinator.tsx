@@ -296,10 +296,10 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
                         <div className="flex items-center space-x-2 flex-1">
                           <FileText className="h-4 w-4 text-gray-400" />
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
+                            <p className="text-sm font-medium text-gray-900 truncate" title={doc.document_name || doc.documentName || 'Untitled Document'}>
                               {doc.document_name || doc.documentName || 'Untitled Document'}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 truncate">
                               {doc.file_type || 'Unknown type'} • {doc.file_size ? `${Math.round(doc.file_size / 1024)}KB` : 'Unknown size'}
                             </p>
                           </div>
@@ -313,14 +313,14 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
                             {doc.status}
                           </span>
                           <button 
-                            onClick={() => window.open(`/api/transaction/documents/${doc.id}/view`, '_blank')}
+                            onClick={() => apiService.viewDocument(doc.id)}
                             className="p-1 text-gray-400 hover:text-green-600"
                             title="View document"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
                           <button 
-                            onClick={() => window.open(`/api/transaction/documents/${doc.id}/download`, '_blank')}
+                            onClick={() => apiService.downloadDocument(doc.id, doc.document_name || doc.documentName || 'document')}
                             className="p-1 text-gray-400 hover:text-blue-600"
                             title="Download document"
                           >
