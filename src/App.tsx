@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Dashboard } from './components/Dashboard';
 import { LoginPage } from './components/LoginPage';
 import { UserManagement } from './components/UserManagement';
+import { EmailSystemControl } from './components/EmailSystemControl';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Property, Task } from './types';
 import { hybridDataService } from './services/hybridDataService';
-import { Settings, LogOut, Users } from 'lucide-react';
+import { Settings, LogOut, Users, Mail } from 'lucide-react';
 
 function AppContent() {
   const { isAuthenticated, isLoading, user, logout, login } = useAuth();
@@ -13,7 +14,7 @@ function AppContent() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [dataSource, setDataSource] = useState<'api' | 'localStorage'>('localStorage');
-  const [currentView, setCurrentView] = useState<'dashboard' | 'users'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'users' | 'email'>('dashboard');
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -114,17 +115,30 @@ function AppContent() {
                   Dashboard
                 </button>
                 {user?.role === 'Admin' && (
-                  <button
-                    onClick={() => setCurrentView('users')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1 ${
-                      currentView === 'users'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    <Users className="h-4 w-4" />
-                    <span>Users</span>
-                  </button>
+                  <>
+                    <button
+                      onClick={() => setCurrentView('users')}
+                      className={`px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1 ${
+                        currentView === 'users'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      <Users className="h-4 w-4" />
+                      <span>Users</span>
+                    </button>
+                    <button
+                      onClick={() => setCurrentView('email')}
+                      className={`px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1 ${
+                        currentView === 'email'
+                          ? 'bg-orange-100 text-orange-700'
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      <Mail className="h-4 w-4" />
+                      <span>📧 Email System</span>
+                    </button>
+                  </>
                 )}
               </nav>
             </div>
@@ -139,6 +153,10 @@ function AppContent() {
                 'bg-gray-100 text-gray-800'
               }`}>
                 {user?.role}
+              </span>
+              {/* Debug info */}
+              <span className="text-xs text-gray-500">
+                (Role: {user?.role}, Admin check: {user?.role === 'Admin' ? 'TRUE' : 'FALSE'})
               </span>
               <button
                 onClick={logout}
@@ -161,6 +179,12 @@ function AppContent() {
           onTaskUpdate={handleTaskUpdate}
           dataSource={dataSource}
         />
+      ) : currentView === 'email' ? (
+        <div className="min-h-screen bg-gray-50 p-6">
+          <div className="max-w-6xl mx-auto">
+            <EmailSystemControl />
+          </div>
+        </div>
       ) : (
         <UserManagement />
       )}
