@@ -1,12 +1,17 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const { Pool } = require('pg');
 const { seedDatabase } = require('./seed-db');
 const { updatePropertyCoordinates, geocodeAddress } = require('./geocoding');
 const { hashPassword, comparePassword, generateToken, authenticateToken, requireRole } = require('./auth');
 const { sendUserInvitation, sendPasswordReset, generateSetupToken, testEmailConfig } = require('./emailService');
 require('dotenv').config();
+
+// Email Processing Services
+const EmailProcessingOrchestrator = require('./services/emailProcessingOrchestrator');
+const GrokClient = require('./services/grokClient');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -1494,6 +1499,281 @@ app.post('/api/geocode/address', async (req, res) => {
   } catch (err) {
     console.error('Single address geocoding error:', err);
     res.status(500).json({ error: 'Failed to geocode address' });
+  }
+});
+
+// Email Processing System Endpoints
+// Initialize orchestrator (singleton)
+let emailOrchestrator = null;
+
+// Email processing status endpoint
+app.get('/api/email-processing/status', authenticateToken, async (req, res) => {
+  try {
+    const status = emailOrchestrator ? emailOrchestrator.getStatus() : {
+      running: false,
+      lastCheck: null,
+      stats: {
+        totalProcessed: 0,
+        propertyMatches: 0,
+        documentsStored: 0,
+        tasksCreated: 0,
+        responseSent: 0,
+        errors: 0
+      }
+    };
+    res.json(status);
+  } catch (err) {
+    console.error('Email processing status error:', err);
+    res.status(500).json({ error: 'Failed to get email processing status' });
+  }
+});
+
+// Start email processing (Admin only)
+app.post('/api/email-processing/start', authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    if (!emailOrchestrator) {
+      emailOrchestrator = new EmailProcessingOrchestrator(pool);
+    }
+    
+    await emailOrchestrator.start();
+    res.json({ success: true, message: 'Email processing started' });
+  } catch (err) {
+    console.error('Start email processing error:', err);
+    res.status(500).json({ error: err.message || 'Failed to start email processing' });
+  }
+});
+
+// Stop email processing (Admin only)
+app.post('/api/email-processing/stop', authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    if (emailOrchestrator) {
+      await emailOrchestrator.stop();
+    }
+    res.json({ success: true, message: 'Email processing stopped' });
+  } catch (err) {
+    console.error('Stop email processing error:', err);
+    res.status(500).json({ error: 'Failed to stop email processing' });
+  }
+});
+
+// Get email processing queue
+app.get('/api/email-processing/queue', authenticateToken, async (req, res) => {
+  try {
+    const { status = 'all', limit = 50, offset = 0 } = req.query;
+    
+    let query = `
+      SELECT 
+        epq.*,
+        p.address as property_address,
+        p.client_name as property_client
+      FROM email_processing_queue epq
+      LEFT JOIN properties p ON epq.matched_property_id = p.id
+    `;
+    
+    const params = [];
+    if (status !== 'all') {
+      query += ' WHERE epq.processing_status = $1';
+      params.push(status);
+    }
+    
+    query += ' ORDER BY epq.received_at DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2);
+    params.push(limit, offset);
+    
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Get email queue error:', err);
+    res.status(500).json({ error: 'Failed to get email queue' });
+  }
+});
+
+// Get email processing statistics
+app.get('/api/email-processing/stats', authenticateToken, async (req, res) => {
+  try {
+    const { timeRange = '7days' } = req.query;
+    
+    let timeClause = "created_at > NOW() - INTERVAL '7 days'";
+    if (timeRange === '30days') {
+      timeClause = "created_at > NOW() - INTERVAL '30 days'";
+    } else if (timeRange === '24hours') {
+      timeClause = "created_at > NOW() - INTERVAL '24 hours'";
+    }
+    
+    const statsQuery = `
+      SELECT 
+        COUNT(*) as total_emails,
+        COUNT(CASE WHEN is_property_related = true THEN 1 END) as property_related,
+        COUNT(CASE WHEN matched_property_id IS NOT NULL THEN 1 END) as property_matched,
+        COUNT(CASE WHEN processing_status = 'processed' THEN 1 END) as processed,
+        COUNT(CASE WHEN processing_status = 'failed' THEN 1 END) as failed,
+        COUNT(CASE WHEN manual_review_required = true THEN 1 END) as manual_review,
+        AVG(documents_saved) as avg_documents_per_email,
+        AVG(tasks_created) as avg_tasks_per_email,
+        COUNT(CASE WHEN auto_response_sent = true THEN 1 END) as responses_sent
+      FROM email_processing_queue
+      WHERE ${timeClause}
+    `;
+    
+    const result = await pool.query(statsQuery);
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Get email stats error:', err);
+    res.status(500).json({ error: 'Failed to get email statistics' });
+  }
+});
+
+// Manual property assignment
+app.post('/api/email-processing/:emailId/assign-property', authenticateToken, async (req, res) => {
+  try {
+    const { emailId } = req.params;
+    const { propertyId } = req.body;
+    
+    // Verify property exists
+    const propertyCheck = await pool.query('SELECT id FROM properties WHERE id = $1', [propertyId]);
+    if (propertyCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Property not found' });
+    }
+    
+    // Update email with property assignment
+    const updateResult = await pool.query(`
+      UPDATE email_processing_queue 
+      SET 
+        matched_property_id = $1,
+        match_method = 'manual',
+        match_confidence = 1.0,
+        manual_review_required = false,
+        processing_status = 'processing',
+        updated_at = NOW()
+      WHERE id = $2
+      RETURNING *
+    `, [propertyId, emailId]);
+    
+    if (updateResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Email not found' });
+    }
+    
+    // Reprocess the email with the assigned property
+    if (emailOrchestrator) {
+      await emailOrchestrator.reprocessEmail(emailId);
+    }
+    
+    res.json(updateResult.rows[0]);
+  } catch (err) {
+    console.error('Manual property assignment error:', err);
+    res.status(500).json({ error: 'Failed to assign property' });
+  }
+});
+
+// Get documents for an email
+app.get('/api/email-processing/:emailId/documents', authenticateToken, async (req, res) => {
+  try {
+    const { emailId } = req.params;
+    
+    const result = await pool.query(`
+      SELECT 
+        eds.*,
+        td.document_name as transaction_document_name,
+        td.category as transaction_document_category
+      FROM email_document_storage eds
+      LEFT JOIN transaction_documents td ON eds.transaction_document_id = td.id
+      WHERE eds.email_queue_id = $1
+      ORDER BY eds.created_at DESC
+    `, [emailId]);
+    
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Get email documents error:', err);
+    res.status(500).json({ error: 'Failed to get email documents' });
+  }
+});
+
+// Download document
+app.get('/api/email-processing/documents/:documentId/download', authenticateToken, async (req, res) => {
+  try {
+    const { documentId } = req.params;
+    
+    // Get document info
+    const docResult = await pool.query(`
+      SELECT file_oid, original_filename, mime_type, file_size
+      FROM email_document_storage
+      WHERE id = $1
+    `, [documentId]);
+    
+    if (docResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    
+    const doc = docResult.rows[0];
+    
+    // Stream file from PostgreSQL Large Object
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      
+      // Open large object for reading
+      const loResult = await client.query('SELECT lo_open($1, $2)', [doc.file_oid, 262144]); // 262144 = read mode
+      const fd = loResult.rows[0].lo_open;
+      
+      // Get file data
+      const readResult = await client.query('SELECT loread($1, $2)', [fd, doc.file_size]);
+      const fileData = readResult.rows[0].loread;
+      
+      // Close large object
+      await client.query('SELECT lo_close($1)', [fd]);
+      await client.query('COMMIT');
+      
+      // Send file
+      res.setHeader('Content-Type', doc.mime_type);
+      res.setHeader('Content-Disposition', `attachment; filename="${doc.original_filename}"`);
+      res.setHeader('Content-Length', doc.file_size);
+      res.send(fileData);
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    console.error('Download document error:', err);
+    res.status(500).json({ error: 'Failed to download document' });
+  }
+});
+
+// Email processing database migration endpoint
+app.post('/api/database/migrate-email-processing', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // Read and execute the email processing schema
+    const fs = require('fs');
+    const schemaPath = path.join(__dirname, '..', 'database', 'email_processing_schema.sql');
+    const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+    
+    // Execute the schema
+    await client.query(schemaSql);
+    
+    await client.query('COMMIT');
+    console.log('✅ Email processing tables created successfully');
+    res.json({ success: true, message: 'Email processing migration completed' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('❌ Email processing migration error:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Test Grok connection
+app.get('/api/email-processing/test-grok', authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    const grokClient = new GrokClient();
+    const connected = await grokClient.testConnection();
+    res.json({ 
+      connected, 
+      message: connected ? 'Grok API connection successful' : 'Grok API connection failed'
+    });
+  } catch (err) {
+    console.error('Test Grok connection error:', err);
+    res.status(500).json({ error: 'Failed to test Grok connection' });
   }
 });
 
