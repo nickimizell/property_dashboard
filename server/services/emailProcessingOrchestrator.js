@@ -88,11 +88,8 @@ class EmailProcessingOrchestrator {
         console.log('🔄 Running single email processing cycle...');
         
         try {
-            // Initialize email processor but don't start continuous monitoring
-            await this.emailProcessor.initialize();
-            
-            // Check for new emails and process them
-            const emails = await this.emailProcessor.checkForNewEmails();
+            // Check for new emails and process them directly
+            const emails = await this.checkEmailsDirectly();
             
             if (emails && emails.length > 0) {
                 console.log(`📬 Found ${emails.length} new emails to process`);
@@ -117,6 +114,110 @@ class EmailProcessingOrchestrator {
             this.processingStats.errors++;
             throw error;
         }
+    }
+
+    /**
+     * Check emails directly using IMAP (simplified for testing)
+     */
+    async checkEmailsDirectly() {
+        console.log('📧 Connecting to Gmail IMAP...');
+        
+        const Imap = require('imap');
+        const { simpleParser } = require('mailparser');
+        
+        const imapConfig = {
+            user: 'transaction.coordinator.agent@gmail.com',
+            password: 'xmvi xvso zblo oewe',
+            host: 'imap.gmail.com',
+            port: 993,
+            tls: true,
+            tlsOptions: { servername: 'imap.gmail.com' }
+        };
+        
+        return new Promise((resolve, reject) => {
+            const imap = new Imap(imapConfig);
+            const emails = [];
+            
+            imap.once('ready', () => {
+                console.log('📬 Connected to Gmail');
+                
+                imap.openBox('INBOX', false, (err, box) => {
+                    if (err) {
+                        console.error('❌ Error opening inbox:', err);
+                        return reject(err);
+                    }
+                    
+                    // Search for recent unread emails (last 7 days)
+                    const searchCriteria = ['UNSEEN', ['SINCE', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)]];
+                    
+                    imap.search(searchCriteria, (err, results) => {
+                        if (err) {
+                            console.error('❌ Search error:', err);
+                            return reject(err);
+                        }
+                        
+                        if (!results || results.length === 0) {
+                            console.log('📭 No unread emails found');
+                            imap.end();
+                            return resolve([]);
+                        }
+                        
+                        console.log(`📬 Found ${results.length} unread emails`);
+                        
+                        // Limit to first 5 emails for testing
+                        const emailsToProcess = results.slice(0, 5);
+                        let processedCount = 0;
+                        
+                        const fetch = imap.fetch(emailsToProcess, { bodies: '' });
+                        
+                        fetch.on('message', (msg, seqno) => {
+                            let buffer = '';
+                            
+                            msg.on('body', (stream, info) => {
+                                stream.on('data', (chunk) => {
+                                    buffer += chunk.toString('utf8');
+                                });
+                            });
+                            
+                            msg.once('end', async () => {
+                                try {
+                                    const parsed = await simpleParser(buffer);
+                                    emails.push(parsed);
+                                    processedCount++;
+                                    
+                                    console.log(`📧 Processed email ${processedCount}/${emailsToProcess.length}: "${parsed.subject}"`);
+                                    
+                                    if (processedCount === emailsToProcess.length) {
+                                        imap.end();
+                                        resolve(emails);
+                                    }
+                                } catch (parseError) {
+                                    console.error('❌ Error parsing email:', parseError);
+                                    processedCount++;
+                                    
+                                    if (processedCount === emailsToProcess.length) {
+                                        imap.end();
+                                        resolve(emails);
+                                    }
+                                }
+                            });
+                        });
+                        
+                        fetch.once('error', (err) => {
+                            console.error('❌ Fetch error:', err);
+                            reject(err);
+                        });
+                    });
+                });
+            });
+            
+            imap.once('error', (err) => {
+                console.error('❌ IMAP connection error:', err);
+                reject(err);
+            });
+            
+            imap.connect();
+        });
     }
 
     /**
