@@ -57,6 +57,17 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
     eventType: 'update',
     eventDate: new Date().toISOString().split('T')[0]
   });
+  
+  // Notification state
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error' | 'info';
+    message: string;
+  } | null>(null);
+
+  const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 4000);
+  };
 
   // Fetch transaction data when component mounts or property changes
   useEffect(() => {
@@ -131,14 +142,19 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
       const documents = await response.json();
       setTransactionData(prev => ({ ...prev, documents }));
       
-      // Reset form
-      setShowUploadModal(false);
-      setUploadCategory('');
-      setUploadNotes('');
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      // Show success message
+      showNotification('success', `Document "${file.name}" uploaded successfully to ${uploadCategory}`);
+      
+      // Reset form after a brief delay
+      setTimeout(() => {
+        setShowUploadModal(false);
+        setUploadCategory('');
+        setUploadNotes('');
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }, 1500);
     } catch (err) {
       console.error('Upload error:', err);
-      alert('Failed to upload document');
+      showNotification('error', 'Failed to upload document. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -157,12 +173,15 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
       const parties = await response.json();
       setTransactionData(prev => ({ ...prev, parties }));
       
+      // Show success message
+      showNotification('success', `${partyForm.role} "${partyForm.name}" added successfully`);
+      
       // Reset form
       setShowPartyModal(false);
       setPartyForm({ role: '', name: '', email: '', phone: '', company: '' });
     } catch (err) {
       console.error('Add party error:', err);
-      alert('Failed to add party');
+      showNotification('error', 'Failed to add party. Please try again.');
     }
   };
   
@@ -178,9 +197,10 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
       });
       const workflow = await response.json();
       setTransactionData(prev => ({ ...prev, workflow }));
+      showNotification('success', 'Task updated successfully');
     } catch (err) {
       console.error('Update task error:', err);
-      alert('Failed to update task');
+      showNotification('error', 'Failed to update task. Please try again.');
     }
   };
   
@@ -197,6 +217,9 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
       const timeline = await response.json();
       setTransactionData(prev => ({ ...prev, timeline }));
       
+      // Show success message
+      showNotification('success', `Timeline event "${eventForm.title}" added successfully`);
+      
       // Reset form
       setShowEventModal(false);
       setEventForm({
@@ -207,7 +230,7 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
       });
     } catch (err) {
       console.error('Add event error:', err);
-      alert('Failed to add event');
+      showNotification('error', 'Failed to add timeline event. Please try again.');
     }
   };
 
@@ -267,17 +290,38 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
                    'Awaiting documents'}
                 </p>
                 {docs.length > 0 && (
-                  <div className="mt-2 space-y-1">
-                    {docs.slice(0, 3).map((doc, index) => (
-                      <div key={index} className="text-xs text-gray-500 truncate">
-                        📄 {doc.documentName}
+                  <div className="mt-3 space-y-2">
+                    {docs.map((doc, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-white rounded border border-gray-200 hover:border-gray-300">
+                        <div className="flex items-center space-x-2 flex-1">
+                          <FileText className="h-4 w-4 text-gray-400" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {doc.document_name || doc.documentName || 'Untitled Document'}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {doc.file_type || 'Unknown type'} • {doc.file_size ? `${Math.round(doc.file_size / 1024)}KB` : 'Unknown size'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            doc.status === 'complete' ? 'bg-green-100 text-green-800' :
+                            doc.status === 'review' ? 'bg-amber-100 text-amber-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {doc.status}
+                          </span>
+                          <button 
+                            onClick={() => window.open(`/api/transaction/documents/${doc.id}/download`, '_blank')}
+                            className="p-1 text-gray-400 hover:text-blue-600"
+                            title="Download document"
+                          >
+                            <Download className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                     ))}
-                    {docs.length > 3 && (
-                      <div className="text-xs text-gray-400">
-                        +{docs.length - 3} more...
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
@@ -755,6 +799,22 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
                   Add Party
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Notification Toast */}
+        {notification && (
+          <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg border-l-4 max-w-md ${
+            notification.type === 'success' ? 'bg-green-50 border-green-400 text-green-800' :
+            notification.type === 'error' ? 'bg-red-50 border-red-400 text-red-800' :
+            'bg-blue-50 border-blue-400 text-blue-800'
+          }`}>
+            <div className="flex items-center space-x-2">
+              {notification.type === 'success' && <Check className="h-5 w-5 text-green-600" />}
+              {notification.type === 'error' && <X className="h-5 w-5 text-red-600" />}
+              {notification.type === 'info' && <AlertTriangle className="h-5 w-5 text-blue-600" />}
+              <span className="font-medium">{notification.message}</span>
             </div>
           </div>
         )}

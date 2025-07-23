@@ -1066,6 +1066,38 @@ app.post('/api/transaction/:propertyId/documents/upload', authenticateToken, upl
   }
 });
 
+// Download document endpoint
+app.get('/api/transaction/documents/:documentId/download', authenticateToken, async (req, res) => {
+  try {
+    const { documentId } = req.params;
+    
+    // Get document info
+    const docResult = await pool.query(`
+      SELECT document_name, file_type, file_size
+      FROM transaction_documents
+      WHERE id = $1
+    `, [documentId]);
+    
+    if (docResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    
+    const doc = docResult.rows[0];
+    
+    // For now, just return document info since we're storing metadata only
+    // In future, this would stream actual file content
+    res.setHeader('Content-Type', 'application/json');
+    res.json({
+      message: 'Document download would occur here',
+      document: doc,
+      note: 'File storage integration needed for actual download'
+    });
+  } catch (err) {
+    console.error('Document download error:', err);
+    res.status(500).json({ error: 'Failed to download document' });
+  }
+});
+
 // Get transaction parties for a property
 app.get('/api/transaction/:propertyId/parties', authenticateToken, async (req, res) => {
   try {
