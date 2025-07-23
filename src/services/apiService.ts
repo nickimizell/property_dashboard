@@ -194,6 +194,143 @@ class ApiService {
       throw error;
     }
   }
+
+  // Transaction Coordinator APIs
+  async getTransactionDocuments(propertyId: string): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/transaction/${propertyId}/documents`, {
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch documents');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching transaction documents:', error);
+      throw error;
+    }
+  }
+
+  async uploadDocument(propertyId: string, file: File, category: string, notes?: string): Promise<any> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('category', category);
+      formData.append('propertyId', propertyId);
+      if (notes) formData.append('notes', notes);
+
+      const headers = this.getAuthHeaders();
+      delete headers['Content-Type']; // Let browser set multipart boundary
+
+      const response = await fetch(`${API_BASE_URL}/api/transaction/${propertyId}/documents/upload`, {
+        method: 'POST',
+        headers,
+        body: formData,
+      });
+      if (!response.ok) throw new Error('Failed to upload document');
+      return await response.json();
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      throw error;
+    }
+  }
+
+  async getTransactionParties(propertyId: string): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/transaction/${propertyId}/parties`, {
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch parties');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching transaction parties:', error);
+      throw error;
+    }
+  }
+
+  async createTransactionParty(propertyId: string, party: any): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/transaction/${propertyId}/parties`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(party),
+      });
+      if (!response.ok) throw new Error('Failed to create party');
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating transaction party:', error);
+      throw error;
+    }
+  }
+
+  async updateTransactionParty(propertyId: string, partyId: string, updates: any): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/transaction/${propertyId}/parties/${partyId}`, {
+        method: 'PUT',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(updates),
+      });
+      if (!response.ok) throw new Error('Failed to update party');
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating transaction party:', error);
+      throw error;
+    }
+  }
+
+  async getTransactionWorkflow(propertyId: string): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/transaction/${propertyId}/workflow`, {
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch workflow');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching transaction workflow:', error);
+      throw error;
+    }
+  }
+
+  async updateWorkflowTask(taskId: string, updates: any): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/transaction/workflow/${taskId}`, {
+        method: 'PUT',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(updates),
+      });
+      if (!response.ok) throw new Error('Failed to update workflow task');
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating workflow task:', error);
+      throw error;
+    }
+  }
+
+  async getTransactionTimeline(propertyId: string): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/transaction/${propertyId}/timeline`, {
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch timeline');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching transaction timeline:', error);
+      throw error;
+    }
+  }
+
+  async addTimelineEvent(propertyId: string, event: any): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/transaction/${propertyId}/timeline`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(event),
+      });
+      if (!response.ok) throw new Error('Failed to add timeline event');
+      return await response.json();
+    } catch (error) {
+      console.error('Error adding timeline event:', error);
+      throw error;
+    }
+  }
 }
 
 export const apiService = ApiService.getInstance();

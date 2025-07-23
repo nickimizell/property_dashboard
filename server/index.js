@@ -1008,6 +1008,57 @@ app.get('/api/transaction/:propertyId/documents', authenticateToken, async (req,
   }
 });
 
+// Upload document for transaction
+app.post('/api/transaction/:propertyId/documents/upload', authenticateToken, upload.single('file'), async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    const { category, notes } = req.body;
+    
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    
+    if (!category) {
+      return res.status(400).json({ error: 'Document category is required' });
+    }
+    
+    // Save document metadata to database
+    const result = await pool.query(`
+      INSERT INTO transaction_documents (
+        property_id, category, document_name, file_type, file_size, 
+        status, notes, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+      RETURNING *
+    `, [
+      propertyId,
+      category,
+      req.file.originalname,
+      req.file.mimetype,
+      req.file.size,
+      'complete',
+      notes || ''
+    ]);
+    
+    // Add timeline event
+    await pool.query(`
+      INSERT INTO transaction_timeline (
+        property_id, event_type, title, description, event_date, status
+      ) VALUES ($1, $2, $3, $4, NOW(), $5)
+    `, [
+      propertyId,
+      'update',
+      'Document Uploaded',
+      `${category} document uploaded: ${req.file.originalname}`,
+      'complete'
+    ]);
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Document upload error:', err);
+    res.status(500).json({ error: 'Failed to upload document' });
+  }
+});
+
 // Get transaction parties for a property
 app.get('/api/transaction/:propertyId/parties', authenticateToken, async (req, res) => {
   try {
