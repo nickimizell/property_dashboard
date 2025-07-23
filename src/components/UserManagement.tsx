@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Plus, User, Mail, Shield, Calendar, Edit3, Lock, Trash2, Check, X } from 'lucide-react';
+import { Plus, User, Mail, Shield, Calendar, Edit3, Lock, Trash2, Check, X, Settings } from 'lucide-react';
+import { EmailSystemControl } from './EmailSystemControl';
 
 interface User {
   id: string;
@@ -28,6 +29,7 @@ interface PasswordChangeData {
 
 export const UserManagement: React.FC = () => {
   const { token, user: currentUser } = useAuth();
+  const [activeTab, setActiveTab] = useState<'users' | 'email'>('users');
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -186,31 +188,63 @@ export const UserManagement: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="flex items-center justify-between">
+        {/* Header with Tabs */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-              <p className="text-gray-600 mt-1">Manage system users and permissions</p>
+              <h1 className="text-2xl font-bold text-gray-900">Administration</h1>
+              <p className="text-gray-600 mt-1">Manage users, permissions, and system settings</p>
             </div>
+            {activeTab === 'users' && (
+              <button
+                onClick={() => setShowAddUser(true)}
+                className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add User</span>
+              </button>
+            )}
+          </div>
+          
+          {/* Tabs */}
+          <div className="flex space-x-8 px-6">
             <button
-              onClick={() => setShowAddUser(true)}
-              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              onClick={() => setActiveTab('users')}
+              className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'users'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
             >
-              <Plus className="h-4 w-4" />
-              <span>Add User</span>
+              <User className="h-4 w-4" />
+              <span>User Management</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('email')}
+              className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'email'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Settings className="h-4 w-4" />
+              <span>Email System</span>
             </button>
           </div>
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-red-700">{error}</p>
-          </div>
-        )}
+        {/* Tab Content */}
+        {activeTab === 'users' && (
+          <>
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <p className="text-red-700">{error}</p>
+              </div>
+            )}
 
-        {/* Users Table */}
+            {/* Users Table */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -418,6 +452,15 @@ export const UserManagement: React.FC = () => {
               </div>
             </div>
           </div>
+        )}
+        
+        {/* Close users tab */}
+          </>
+        )}
+        
+        {/* Email System Tab */}
+        {activeTab === 'email' && (
+          <EmailSystemControl />
         )}
       </div>
     </div>

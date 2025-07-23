@@ -1683,16 +1683,14 @@ let emailOrchestrator = null;
 app.get('/api/email-processing/status', authenticateToken, async (req, res) => {
   try {
     const status = emailOrchestrator ? emailOrchestrator.getStatus() : {
-      running: false,
-      lastCheck: null,
-      stats: {
-        totalProcessed: 0,
-        propertyMatches: 0,
-        documentsStored: 0,
-        tasksCreated: 0,
-        responseSent: 0,
-        errors: 0
-      }
+      isRunning: false,
+      testingMode: true,
+      emailsProcessed: 0,
+      propertyMatches: 0,
+      documentsStored: 0,
+      tasksCreated: 0,
+      errors: 0,
+      lastProcessed: null
     };
     res.json(status);
   } catch (err) {
@@ -1726,6 +1724,25 @@ app.post('/api/email-processing/stop', authenticateToken, requireRole(['Admin'])
   } catch (err) {
     console.error('Stop email processing error:', err);
     res.status(500).json({ error: 'Failed to stop email processing' });
+  }
+});
+
+// Process emails manually (Admin only, for testing)
+app.post('/api/email-processing/process-manual', authenticateToken, requireRole(['Admin']), async (req, res) => {
+  try {
+    if (!emailOrchestrator) {
+      emailOrchestrator = new EmailProcessingOrchestrator(pool);
+    }
+    
+    const status = await emailOrchestrator.processEmailsManually();
+    res.json({ 
+      success: true, 
+      message: 'Manual email processing completed',
+      status: status
+    });
+  } catch (err) {
+    console.error('Manual email processing error:', err);
+    res.status(500).json({ error: err.message || 'Failed to process emails manually' });
   }
 });
 

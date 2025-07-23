@@ -21,6 +21,8 @@ class EmailProcessingOrchestrator {
         this.emailResponder = new EmailResponder(dbPool);
         
         this.isRunning = false;
+        this.testingMode = true; // Default to testing mode
+        this.processingInterval = null;
         this.processingStats = {
             emailsProcessed: 0,
             propertyMatches: 0,
@@ -28,36 +30,47 @@ class EmailProcessingOrchestrator {
             tasksCreated: 0,
             calendarEventsCreated: 0,
             responsesSet: 0,
-            errors: 0
+            errors: 0,
+            lastProcessed: null
         };
 
-        console.log('🎼 Email Processing Orchestrator initialized');
+        console.log('🎼 Email Processing Orchestrator initialized (Testing Mode)');
     }
 
     /**
      * Start the complete email processing system
      */
-    async start() {
+    async start(testingMode = true) {
         if (this.isRunning) {
             console.log('⚠️ Email processing is already running');
             return;
         }
 
-        console.log('🚀 Starting Email Processing System...');
+        this.testingMode = testingMode;
+        console.log(`🚀 Starting Email Processing System... (${testingMode ? 'Testing Mode' : 'Production Mode'})`);
         
         try {
             // Test all service connections
             await this.validateServices();
             
-            // Override the basic email processor's processEmail method
-            // to use our enhanced orchestrated processing
-            this.emailProcessor.processEmail = this.processEmailEnhanced.bind(this);
-            
-            // Start IMAP monitoring
-            await this.emailProcessor.start();
-            
-            this.isRunning = true;
-            console.log('✅ Email Processing System is running');
+            if (testingMode) {
+                // In testing mode, process existing emails once and stop
+                console.log('🧪 Testing Mode: Processing existing emails once...');
+                await this.runSingleProcessingCycle();
+                console.log('✅ Testing cycle complete. System ready for manual control.');
+            } else {
+                // Production mode: continuous polling
+                console.log('⚡ Production Mode: Starting continuous email monitoring...');
+                
+                // Override the basic email processor's processEmail method
+                this.emailProcessor.processEmail = this.processEmailEnhanced.bind(this);
+                
+                // Start IMAP monitoring
+                await this.emailProcessor.start();
+                
+                this.isRunning = true;
+                console.log('✅ Email Processing System is running continuously');
+            }
             
             // Print initial stats
             this.logStats();
@@ -66,6 +79,57 @@ class EmailProcessingOrchestrator {
             console.error('❌ Failed to start Email Processing System:', error);
             throw error;
         }
+    }
+
+    /**
+     * Run a single processing cycle (for testing)
+     */
+    async runSingleProcessingCycle() {
+        console.log('🔄 Running single email processing cycle...');
+        
+        try {
+            // Initialize email processor but don't start continuous monitoring
+            await this.emailProcessor.initialize();
+            
+            // Check for new emails and process them
+            const emails = await this.emailProcessor.checkForNewEmails();
+            
+            if (emails && emails.length > 0) {
+                console.log(`📬 Found ${emails.length} new emails to process`);
+                
+                for (const email of emails) {
+                    try {
+                        await this.processEmailEnhanced(email);
+                        this.processingStats.emailsProcessed++;
+                    } catch (error) {
+                        console.error('❌ Error processing email:', error);
+                        this.processingStats.errors++;
+                    }
+                }
+            } else {
+                console.log('📭 No new emails found');
+            }
+            
+            this.processingStats.lastProcessed = new Date().toISOString();
+            
+        } catch (error) {
+            console.error('❌ Error in single processing cycle:', error);
+            this.processingStats.errors++;
+            throw error;
+        }
+    }
+
+    /**
+     * Process emails manually (for testing interface)
+     */
+    async processEmailsManually() {
+        if (this.isRunning && !this.testingMode) {
+            throw new Error('Cannot run manual processing while system is in production mode');
+        }
+        
+        console.log('🔧 Manual email processing triggered...');
+        await this.runSingleProcessingCycle();
+        return this.getStatus();
     }
 
     /**
@@ -78,11 +142,32 @@ class EmailProcessingOrchestrator {
             this.emailProcessor.stop();
         }
         
+        if (this.processingInterval) {
+            clearInterval(this.processingInterval);
+            this.processingInterval = null;
+        }
+        
         this.isRunning = false;
         console.log('✅ Email Processing System stopped');
         
         // Print final stats
         this.logStats();
+    }
+
+    /**
+     * Get current system status
+     */
+    getStatus() {
+        return {
+            isRunning: this.isRunning,
+            testingMode: this.testingMode,
+            emailsProcessed: this.processingStats.emailsProcessed,
+            propertyMatches: this.processingStats.propertyMatches,
+            documentsStored: this.processingStats.documentsStored,
+            tasksCreated: this.processingStats.tasksCreated,
+            errors: this.processingStats.errors,
+            lastProcessed: this.processingStats.lastProcessed
+        };
     }
 
     /**

@@ -406,6 +406,89 @@ class ApiService {
       throw error;
     }
   }
+
+  // Email Processing System Controls
+  async getEmailProcessingStatus(): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/email-processing/status`, {
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to get email processing status');
+      return await response.json();
+    } catch (error) {
+      console.error('Error getting email processing status:', error);
+      throw error;
+    }
+  }
+
+  async startEmailProcessing(): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/email-processing/start`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to start email processing');
+      return await response.json();
+    } catch (error) {
+      console.error('Error starting email processing:', error);
+      throw error;
+    }
+  }
+
+  async stopEmailProcessing(): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/email-processing/stop`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to stop email processing');
+      return await response.json();
+    } catch (error) {
+      console.error('Error stopping email processing:', error);
+      throw error;
+    }
+  }
+
+  async migrateEmailProcessing(): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/database/migrate-email-processing`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to run database migration');
+      return await response.json();
+    } catch (error) {
+      console.error('Error running database migration:', error);
+      throw error;
+    }
+  }
+
+  async getEmailProcessingStats(): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/email-processing/stats`, {
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to get email processing stats');
+      return await response.json();
+    } catch (error) {
+      console.error('Error getting email processing stats:', error);
+      throw error;
+    }
+  }
+
+  async processEmailsManually(): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/email-processing/process-manual`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to process emails manually');
+      return await response.json();
+    } catch (error) {
+      console.error('Error processing emails manually:', error);
+      throw error;
+    }
+  }
 }
 
 export const apiService = ApiService.getInstance();
