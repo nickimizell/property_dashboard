@@ -292,10 +292,10 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
                 {docs.length > 0 && (
                   <div className="mt-3 space-y-2">
                     {docs.map((doc, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-white rounded border border-gray-200 hover:border-gray-300">
-                        <div className="flex items-center space-x-2 flex-1">
-                          <FileText className="h-4 w-4 text-gray-400" />
-                          <div className="flex-1 min-w-0">
+                      <div key={index} className="flex items-center p-2 bg-white rounded border border-gray-200 hover:border-gray-300">
+                        <div className="flex items-center space-x-2 flex-1 min-w-0">
+                          <FileText className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          <div className="flex-1 min-w-0 max-w-[180px]">
                             <p className="text-sm font-medium text-gray-900 truncate" title={doc.document_name || doc.documentName || 'Untitled Document'}>
                               {doc.document_name || doc.documentName || 'Untitled Document'}
                             </p>
@@ -304,7 +304,7 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 flex-shrink-0">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             doc.status === 'complete' ? 'bg-green-100 text-green-800' :
                             doc.status === 'review' ? 'bg-amber-100 text-amber-800' :
