@@ -331,6 +331,21 @@ class ApiService {
       throw error;
     }
   }
+
+  // Database migration
+  async addFileContentColumn(): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/database/add-file-content-column`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to add file content column');
+      return await response.json();
+    } catch (error) {
+      console.error('Error adding file content column:', error);
+      throw error;
+    }
+  }
 }
 
 export const apiService = ApiService.getInstance();
