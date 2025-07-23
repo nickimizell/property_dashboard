@@ -351,27 +351,8 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
   };
 
   const handleZipFormsIntegration = async () => {
-    try {
-      // Import the connector
-      const { ZipFormsConnector } = await import('../utils/zipFormsConnector');
-      
-      // Get the singleton instance
-      const connector = ZipFormsConnector.getInstance();
-      
-      // Prepare property data for zipForms
-      const propertyData = {
-        property: property,
-        parties: transactionData.parties,
-        workflow: transactionData.workflow,
-        documents: transactionData.documents
-      };
-      
-      // Launch zipForms with data
-      await connector.launchZipFormsWithData(propertyData);
-    } catch (error) {
-      console.error('Error launching zipForms:', error);
-      alert('Failed to open zipForms. Please check that the extension is installed and try again.');
-    }
+    // ZipForms integration temporarily disabled
+    alert('ZipForms integration is currently being updated. Please check back later.');
   };
 
   if (loading) {
