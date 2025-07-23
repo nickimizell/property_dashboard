@@ -22,7 +22,7 @@ class EmailResponder {
             }
         };
 
-        this.transporter = nodemailer.createTransporter(this.emailConfig);
+        this.transporter = nodemailer.createTransport(this.emailConfig);
         
         // Dashboard base URL for links
         this.dashboardUrl = 'https://ootb-property-dashboard.onrender.com';
