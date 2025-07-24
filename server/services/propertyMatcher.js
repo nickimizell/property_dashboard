@@ -280,13 +280,31 @@ class PropertyMatcher {
                 const normalizedAddress = this.normalizeAddress(address);
                 
                 // Use PostgreSQL's similarity function for fuzzy matching
-                const result = await this.db.query(`
-                    SELECT *, similarity(address, $1) as sim
-                    FROM properties 
-                    WHERE similarity(address, $1) > 0.3
-                    ORDER BY sim DESC
-                    LIMIT 5
-                `, [normalizedAddress]);
+                let result;
+                try {
+                    result = await this.db.query(`
+                        SELECT *, similarity(address, $1) as sim
+                        FROM properties 
+                        WHERE similarity(address, $1) > 0.3
+                        ORDER BY sim DESC
+                        LIMIT 5
+                    `, [normalizedAddress]);
+                } catch (similarityError) {
+                    console.log(`⚠️ PostgreSQL similarity function not available for ${address}, using ILIKE fallback`);
+                    
+                    // Fallback to ILIKE matching
+                    result = await this.db.query(`
+                        SELECT *, 0.6 as sim
+                        FROM properties 
+                        WHERE UPPER(address) LIKE UPPER($1)
+                           OR UPPER(address) LIKE UPPER($2)
+                        ORDER BY CASE 
+                            WHEN UPPER(address) = UPPER($1) THEN 1
+                            ELSE 2
+                        END
+                        LIMIT 5
+                    `, [normalizedAddress, `%${normalizedAddress}%`]);
+                }
 
                 for (const property of result.rows) {
                     const confidence = Math.min(

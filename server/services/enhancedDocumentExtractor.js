@@ -185,7 +185,7 @@ class EnhancedDocumentExtractor {
         try {
             // Parse entire PDF
             const fullPDF = await pdfParse(buffer);
-            const pdfDoc = await PDFDocument.load(buffer);
+            const pdfDoc = await PDFDocument.load(buffer, { ignoreEncryption: true });
             const pageCount = pdfDoc.getPageCount();
             
             console.log(`📊 PDF has ${pageCount} pages, analyzing for document boundaries...`);
@@ -269,7 +269,7 @@ class EnhancedDocumentExtractor {
      */
     async extractPageByPage(buffer) {
         try {
-            const pdfDoc = await PDFDocument.load(buffer);
+            const pdfDoc = await PDFDocument.load(buffer, { ignoreEncryption: true });
             const pageCount = pdfDoc.getPageCount();
             const pages = [];
 
@@ -647,6 +647,89 @@ Document type:`;
             await client.query('ROLLBACK');
             console.error('❌ Error deleting document:', error);
             return { success: false, error: error.message };
+        } finally {
+            client.release();
+        }
+    }
+
+    /**
+     * Store document in database with PostgreSQL Large Objects
+     */
+    async storeDocument(emailQueueId, propertyId, attachment, extractionResult, analysis) {
+        const client = await this.db.connect();
+        
+        try {
+            await client.query('BEGIN');
+
+            // Create Large Object
+            const oidResult = await client.query('SELECT lo_create(0)');
+            const oid = oidResult.rows[0].lo_create;
+
+            // Write file data to Large Object
+            const bufferSize = 16384;
+            let offset = 0;
+            
+            while (offset < attachment.content.length) {
+                const chunk = attachment.content.slice(offset, offset + bufferSize);
+                await client.query('SELECT lo_write($1, $2, $3)', [oid, offset, chunk]);
+                offset += bufferSize;
+            }
+
+            // Store document metadata
+            const docResult = await client.query(`
+                INSERT INTO email_document_storage (
+                    email_queue_id, property_id, original_filename, 
+                    file_oid, file_size, content_type, 
+                    extracted_text, extraction_success, document_type,
+                    grok_analysis, created_at
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
+                RETURNING id
+            `, [
+                emailQueueId,
+                propertyId,
+                attachment.filename,
+                oid,
+                attachment.content.length,
+                attachment.contentType,
+                extractionResult.text || '',
+                extractionResult.success || attachment.extractionSuccess,
+                analysis?.documentType || 'unknown',
+                JSON.stringify(analysis || {})
+            ]);
+
+            // Create transaction document if property is linked
+            if (propertyId) {
+                const transDocResult = await client.query(`
+                    INSERT INTO transaction_documents (
+                        property_id, document_name, document_type, file_path,
+                        upload_date, uploaded_by, document_category
+                    ) VALUES ($1, $2, $3, $4, NOW(), $5, $6)
+                    RETURNING id
+                `, [
+                    propertyId,
+                    attachment.filename,
+                    analysis?.documentType || 'email_attachment',
+                    `email_storage_${docResult.rows[0].id}`,
+                    'Email Processor',
+                    analysis?.documentType || 'other'
+                ]);
+
+                // Link email document to transaction document
+                await client.query(`
+                    UPDATE email_document_storage 
+                    SET transaction_document_id = $1 
+                    WHERE id = $2
+                `, [transDocResult.rows[0].id, docResult.rows[0].id]);
+            }
+
+            await client.query('COMMIT');
+            console.log(`💾 Stored document: ${attachment.filename} (ID: ${docResult.rows[0].id})`);
+            return docResult.rows[0].id;
+
+        } catch (error) {
+            await client.query('ROLLBACK');
+            console.error(`❌ Error storing document ${attachment.filename}:`, error);
+            throw error;
         } finally {
             client.release();
         }
