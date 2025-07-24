@@ -168,10 +168,11 @@ class EmailProcessingOrchestrator {
                         const emailsToProcess = results.slice(0, 5);
                         let processedCount = 0;
                         
-                        const fetch = imap.fetch(emailsToProcess, { bodies: '' });
+                        const fetch = imap.fetch(emailsToProcess, { bodies: '', struct: true });
                         
                         fetch.on('message', (msg, seqno) => {
                             let buffer = '';
+                            let uid = null;
                             
                             msg.on('body', (stream, info) => {
                                 stream.on('data', (chunk) => {
@@ -179,9 +180,14 @@ class EmailProcessingOrchestrator {
                                 });
                             });
                             
+                            msg.once('attributes', (attrs) => {
+                                uid = attrs.uid;
+                            });
+                            
                             msg.once('end', async () => {
                                 try {
                                     const parsed = await simpleParser(buffer);
+                                    parsed.uid = uid; // Add UID to parsed email
                                     emails.push(parsed);
                                     processedCount++;
                                     
@@ -281,10 +287,12 @@ class EmailProcessingOrchestrator {
         console.log(`👤 From: ${email.from.text}`);
         console.log(`📎 Attachments: ${email.attachments.length}`);
 
+        let emailRecord = null;
+        
         try {
             // Step 1: Store email in processing queue
             console.log('\n📝 Step 1: Storing email in processing queue...');
-            const emailRecord = await this.emailProcessor.storeEmailInQueue(email);
+            emailRecord = await this.emailProcessor.storeEmailInQueue(email);
             
             if (!emailRecord) {
                 console.log('⚠️ Email already processed, skipping');
@@ -341,7 +349,11 @@ class EmailProcessingOrchestrator {
 
             // Step 4: Mark email as read (it's property-related)
             console.log('\n✅ Step 4: Marking email as read...');
-            await this.emailProcessor.markEmailAsRead(email.uid);
+            if (email.uid) {
+                await this.emailProcessor.markEmailAsRead(email.uid);
+            } else {
+                console.log('  ⚠️ No UID available, skipping mark as read');
+            }
 
             // Step 5: Extract detailed information from documents using Grok
             console.log('\n📋 Step 5: Analyzing documents with Grok...');

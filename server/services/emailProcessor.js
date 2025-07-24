@@ -266,7 +266,7 @@ class EmailProcessor {
             // Check if email already processed
             const existing = await this.db.query(
                 'SELECT id FROM email_processing_queue WHERE email_uid = $1 OR message_id = $2',
-                [email.uid.toString(), email.messageId]
+                [email.uid ? email.uid.toString() : null, email.messageId]
             );
 
             if (existing.rows.length > 0) {
@@ -287,7 +287,7 @@ class EmailProcessor {
                 ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
                 RETURNING *
             `, [
-                email.uid.toString(),
+                email.uid ? email.uid.toString() : null,
                 email.messageId,
                 fromEmail,
                 fromName,
