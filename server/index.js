@@ -1746,6 +1746,74 @@ app.post('/api/email-processing/process-manual', authenticateToken, requireRole(
   }
 });
 
+// Clear processed emails for retesting
+app.post('/api/email-processing/clear-processed', async (req, res) => {
+  try {
+    console.log('🧹 Clearing processed email data for retesting...');
+    
+    // Start transaction
+    await db.query('BEGIN');
+    
+    // Get count before deletion
+    const beforeCount = await db.query('SELECT COUNT(*) as count FROM email_processing_queue');
+    const emailCount = beforeCount.rows[0].count;
+    
+    // Delete all processed emails (CASCADE will handle related records)
+    await db.query('DELETE FROM email_processing_queue');
+    
+    // Clean up any orphaned Large Objects
+    await db.query(`
+      SELECT lo_unlink(oid) FROM pg_largeobject 
+      WHERE oid NOT IN (
+        SELECT file_oid FROM email_document_storage WHERE file_oid IS NOT NULL
+      )
+    `);
+    
+    await db.query('COMMIT');
+    
+    // Verify cleanup
+    const afterCount = await db.query(`
+      SELECT 
+        'email_processing_queue' as table_name, 
+        COUNT(*) as remaining_records 
+      FROM email_processing_queue
+      UNION ALL
+      SELECT 
+        'email_document_storage' as table_name, 
+        COUNT(*) as remaining_records 
+      FROM email_document_storage
+      UNION ALL
+      SELECT 
+        'email_generated_tasks' as table_name, 
+        COUNT(*) as remaining_records 
+      FROM email_generated_tasks
+      UNION ALL
+      SELECT 
+        'email_generated_calendar_events' as table_name, 
+        COUNT(*) as remaining_records 
+      FROM email_generated_calendar_events
+    `);
+    
+    console.log('✅ Email processing data cleared successfully!');
+    console.log(`📊 Cleared ${emailCount} processed emails`);
+    
+    res.json({
+      success: true,
+      message: `Cleared ${emailCount} processed emails successfully`,
+      clearedCount: emailCount,
+      remainingCounts: afterCount.rows
+    });
+    
+  } catch (error) {
+    await db.query('ROLLBACK');
+    console.error('❌ Error clearing processed emails:', error);
+    res.status(500).json({ 
+      error: 'Failed to clear processed emails',
+      details: error.message 
+    });
+  }
+});
+
 // Get email processing queue
 app.get('/api/email-processing/queue', authenticateToken, async (req, res) => {
   try {
