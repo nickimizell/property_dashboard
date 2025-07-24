@@ -607,10 +607,20 @@ EXAMPLES:
 Email: "Please change the price to $285,000"
 Response: {"propertyUpdates": [{"field": "listing_price", "value": "285000", "action": "change", "source": "Agent Name", "confidence": 0.95}]}
 
+Email: "Earl Drive - change price to 80K"
+Response: {"propertyUpdates": [{"field": "listing_price", "value": "80000", "action": "change", "source": "Agent Name", "confidence": 0.95}]}
+
 Email: "Status update - we're now under contract"
 Response: {"propertyUpdates": [{"field": "status", "value": "Under Contract", "action": "update", "source": "Agent Name", "confidence": 0.90}], "tasks": [{"title": "Prepare contract documentation", "category": "Under Contract", "priority": "High"}]}
 
-Be specific and actionable. Only suggest updates you're confident about.`
+PRICE FORMATS TO RECOGNIZE:
+- "$285,000" = 285000
+- "285K" = 285000  
+- "80K" = 80000
+- "1.2M" = 1200000
+- "275000" = 275000
+
+ALWAYS return valid JSON. If unsure, return empty arrays. Be specific and actionable about property updates.`
             },
             {
                 role: "user",
@@ -632,19 +642,52 @@ What specific actions should be taken based on this email?`
 
         try {
             const response = await this.makeApiCall(messages);
+            console.log('🔍 Raw Grok response:', JSON.stringify(response, null, 2));
             
-            // Parse the JSON response
+            // Handle different response formats
+            let responseText = '';
+            if (typeof response === 'string') {
+                responseText = response;
+            } else if (response.choices && response.choices[0] && response.choices[0].message) {
+                responseText = response.choices[0].message.content;
+            } else if (response.content) {
+                responseText = response.content;
+            } else {
+                console.error('❌ Unexpected response format:', response);
+                throw new Error('Unexpected response format from Grok');
+            }
+            
+            console.log('📝 Extracted response text:', responseText);
+            
+            // Parse the JSON response using BDE-style robust parsing
             let actionData;
             try {
-                actionData = JSON.parse(response);
+                // First attempt: Direct JSON parse
+                actionData = JSON.parse(responseText);
             } catch (parseError) {
-                console.log('🔄 Grok returned non-JSON, attempting to extract JSON...');
-                // Try to extract JSON from the response
-                const jsonMatch = response.match(/\{[\s\S]*\}/);
-                if (jsonMatch) {
-                    actionData = JSON.parse(jsonMatch[0]);
-                } else {
-                    throw new Error('No valid JSON found in response');
+                console.log('🔄 Direct JSON parse failed, trying extraction methods...');
+                
+                try {
+                    // Second attempt: Extract JSON block with better regex
+                    const jsonBlockMatch = responseText.match(/```json\s*(\{[\s\S]*?\})\s*```/);
+                    if (jsonBlockMatch) {
+                        console.log('📝 Found JSON in code block');
+                        actionData = JSON.parse(jsonBlockMatch[1]);
+                    } else {
+                        // Third attempt: Find any JSON-like structure
+                        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+                        if (jsonMatch) {
+                            console.log('📝 Found JSON-like structure');
+                            actionData = JSON.parse(jsonMatch[0]);
+                        } else {
+                            // Fourth attempt: Try to parse response as structured text
+                            console.log('🔄 No JSON found, attempting structured text parsing...');
+                            actionData = this.parseStructuredTextResponse(responseText);
+                        }
+                    }
+                } catch (secondParseError) {
+                    console.log('❌ All JSON parsing methods failed, falling back to text analysis');
+                    actionData = this.parseStructuredTextResponse(responseText);
                 }
             }
 
@@ -667,6 +710,109 @@ What specific actions should be taken based on this email?`
                 notes: []
             };
         }
+    }
+
+    /**
+     * Parse structured text response when JSON parsing fails
+     * Inspired by BDE project's robust parsing approach
+     */
+    parseStructuredTextResponse(responseText) {
+        console.log('🔍 Attempting structured text parsing...');
+        
+        const result = {
+            tasks: [],
+            calendarEvents: [],
+            propertyUpdates: [],
+            notes: []
+        };
+
+        try {
+            // Look for price changes with multiple formats
+            const pricePatterns = [
+                /(?:change|update|set).*?price.*?to.*?\$?([\d,]+)K?/gi,
+                /(?:price|cost).*?(?:change|update|set).*?\$?([\d,]+)K?/gi,
+                /\$?([\d,]+)K?\s*(?:price|cost)/gi,
+                /([\d,]+)K/gi
+            ];
+            
+            for (const pattern of pricePatterns) {
+                const matches = responseText.match(pattern);
+                if (matches) {
+                    matches.forEach(match => {
+                        // Handle K suffix (80K = 80000)
+                        const kMatch = match.match(/(\d+)K/i);
+                        if (kMatch) {
+                            const price = parseInt(kMatch[1]) * 1000;
+                            result.propertyUpdates.push({
+                                field: 'listing_price',
+                                value: price.toString(),
+                                action: 'change',
+                                source: 'Email Analysis',
+                                confidence: 0.90
+                            });
+                            console.log(`📝 Extracted price update (K format): $${price}`);
+                            return;
+                        }
+                        
+                        // Handle regular numbers
+                        const priceMatch = match.match(/\$?([\d,]+)/);
+                        if (priceMatch) {
+                            const price = priceMatch[1].replace(/,/g, '');
+                            result.propertyUpdates.push({
+                                field: 'listing_price', 
+                                value: price,
+                                action: 'change',
+                                source: 'Email Analysis',
+                                confidence: 0.85
+                            });
+                            console.log(`📝 Extracted price update: $${price}`);
+                        }
+                    });
+                    break; // Stop after first pattern matches
+                }
+            }
+
+            // Look for status changes
+            const statusMatches = responseText.match(/(?:status|mark|set).*?(?:under contract|sold|active|withdrawn)/gi);
+            if (statusMatches) {
+                statusMatches.forEach(match => {
+                    const statusMatch = match.match(/(under contract|sold|active|withdrawn)/i);
+                    if (statusMatch) {
+                        result.propertyUpdates.push({
+                            field: 'status',
+                            value: statusMatch[1],
+                            action: 'update',
+                            source: 'Email Analysis',
+                            confidence: 0.80
+                        });
+                        console.log(`📝 Extracted status update: ${statusMatch[1]}`);
+                    }
+                });
+            }
+
+            // Create a task if we found updates
+            if (result.propertyUpdates.length > 0) {
+                result.tasks.push({
+                    title: `Update property based on email request`,
+                    description: `Execute property updates requested via email`,
+                    category: 'Property Management',
+                    priority: 'High',
+                    dueDate: new Date().toISOString().split('T')[0],
+                    assignedTo: 'Transaction Coordinator'
+                });
+            }
+
+            // Add general notes
+            if (responseText.length > 10) {
+                result.notes.push(`Email content analyzed: ${responseText.substring(0, 200)}...`);
+            }
+
+        } catch (error) {
+            console.error('❌ Error in structured text parsing:', error);
+        }
+
+        console.log(`🎯 Structured parsing result: ${result.propertyUpdates.length} updates, ${result.tasks.length} tasks`);
+        return result;
     }
 }
 

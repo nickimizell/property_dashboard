@@ -428,6 +428,11 @@ class EmailProcessingOrchestrator {
                 
                 try {
                     // Analyze email content for action requests (always, not just with attachments)
+                    console.log(`  📧 Email content being analyzed:`);
+                    console.log(`    Subject: "${email.subject}"`);
+                    console.log(`    From: "${email.from.text}"`);
+                    console.log(`    Body: "${email.text || email.html || 'No body'}"`);
+                    
                     generatedContent = await this.grokClient.analyzeEmailForActions({
                         subject: email.subject,
                         body: email.text || email.html,
@@ -601,12 +606,17 @@ class EmailProcessingOrchestrator {
                     await this.db.query(updateQuery, params);
                     console.log(`  ✅ Updated ${update.field} successfully`);
                     
-                    // Log the update in email processing queue
-                    await this.db.query(`
-                        UPDATE email_processing_queue
-                        SET property_updates_made = COALESCE(property_updates_made, 0) + 1
-                        WHERE id = $1
-                    `, [emailQueueId]);
+                    // Log the update in email processing queue (if column exists)
+                    try {
+                        await this.db.query(`
+                            UPDATE email_processing_queue
+                            SET property_updates_made = COALESCE(property_updates_made, 0) + 1
+                            WHERE id = $1
+                        `, [emailQueueId]);
+                    } catch (columnError) {
+                        // Column doesn't exist yet, ignore for now
+                        console.log('  ⚠️ property_updates_made column not found, skipping counter update');
+                    }
                 }
                 
             } catch (error) {

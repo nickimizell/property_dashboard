@@ -261,18 +261,34 @@ class EmailResponder {
      */
     async getActionDetails(emailQueueId) {
         try {
-            // Get documents with more details
-            const docsResult = await this.db.query(`
-                SELECT 
-                    original_filename, 
-                    document_type,
-                    file_size,
-                    extraction_success,
-                    LENGTH(extracted_text) as text_length
-                FROM email_document_storage 
-                WHERE email_queue_id = $1
-                ORDER BY created_at
-            `, [emailQueueId]);
+            // Get documents with more details (handle missing columns gracefully)
+            let docsResult;
+            try {
+                docsResult = await this.db.query(`
+                    SELECT 
+                        original_filename, 
+                        document_type,
+                        file_size,
+                        COALESCE(extraction_success, true) as extraction_success,
+                        LENGTH(extracted_text) as text_length
+                    FROM email_document_storage 
+                    WHERE email_queue_id = $1
+                    ORDER BY created_at
+                `, [emailQueueId]);
+            } catch (columnError) {
+                // Fallback query without extraction_success column
+                docsResult = await this.db.query(`
+                    SELECT 
+                        original_filename, 
+                        document_type,
+                        file_size,
+                        true as extraction_success,
+                        LENGTH(extracted_text) as text_length
+                    FROM email_document_storage 
+                    WHERE email_queue_id = $1
+                    ORDER BY created_at
+                `, [emailQueueId]);
+            }
 
             // Get tasks with more details
             const tasksResult = await this.db.query(`
