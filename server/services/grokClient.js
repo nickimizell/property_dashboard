@@ -540,6 +540,134 @@ Current Date: ${new Date().toISOString().split('T')[0]}`
             return false;
         }
     }
+
+    /**
+     * Analyze email content for specific actions and property updates
+     */
+    async analyzeEmailForActions(emailData) {
+        const messages = [
+            {
+                role: "system",
+                content: `You are a real estate transaction coordinator AI. Analyze emails for specific action requests and property updates.
+
+CAPABILITIES:
+- Property updates (price, status, client info, agent info, closing date)
+- Task creation based on email content
+- Calendar event scheduling
+- Note-taking and documentation
+
+PROPERTY UPDATE FIELDS:
+- price/listing_price: For price changes
+- status: Active, Under Contract, Sold, Withdrawn, etc.
+- client_name: Buyer/seller information
+- selling_agent/listing_agent: Agent assignments
+- closing_date: Closing/settlement dates
+- notes: General updates or information
+
+TASK CATEGORIES:
+- Pre-Listing, Under Contract, Documentation, Inspection, Legal, Closing, Marketing, Follow-up
+
+RESPONSE FORMAT:
+Return a JSON object with:
+{
+  "tasks": [
+    {
+      "title": "Task title",
+      "description": "Detailed description",
+      "category": "Category",
+      "priority": "High/Medium/Low",
+      "dueDate": "YYYY-MM-DD or null",
+      "assignedTo": "Person or role"
+    }
+  ],
+  "calendarEvents": [
+    {
+      "title": "Event title",
+      "eventDate": "YYYY-MM-DD",
+      "eventTime": "HH:MM" or null,
+      "eventType": "inspection/closing/showing/meeting",
+      "description": "Event details"
+    }
+  ],
+  "propertyUpdates": [
+    {
+      "field": "Field name from above list",
+      "value": "New value",
+      "action": "update/change/set",
+      "source": "Email sender name",
+      "confidence": 0.95
+    }
+  ],
+  "notes": [
+    "Important information to add to property record"
+  ]
+}
+
+EXAMPLES:
+Email: "Please change the price to $285,000"
+Response: {"propertyUpdates": [{"field": "listing_price", "value": "285000", "action": "change", "source": "Agent Name", "confidence": 0.95}]}
+
+Email: "Status update - we're now under contract"
+Response: {"propertyUpdates": [{"field": "status", "value": "Under Contract", "action": "update", "source": "Agent Name", "confidence": 0.90}], "tasks": [{"title": "Prepare contract documentation", "category": "Under Contract", "priority": "High"}]}
+
+Be specific and actionable. Only suggest updates you're confident about.`
+            },
+            {
+                role: "user",
+                content: `Analyze this email for actions:
+
+Subject: ${emailData.subject}
+From: ${emailData.from}
+Body: ${emailData.body || 'No body content'}
+
+Property Context:
+${emailData.propertyInfo ? JSON.stringify(emailData.propertyInfo, null, 2) : 'No property context'}
+
+Document Analysis:
+${emailData.documentAnalysis ? JSON.stringify(emailData.documentAnalysis, null, 2) : 'No documents analyzed'}
+
+What specific actions should be taken based on this email?`
+            }
+        ];
+
+        try {
+            const response = await this.makeApiCall(messages);
+            
+            // Parse the JSON response
+            let actionData;
+            try {
+                actionData = JSON.parse(response);
+            } catch (parseError) {
+                console.log('🔄 Grok returned non-JSON, attempting to extract JSON...');
+                // Try to extract JSON from the response
+                const jsonMatch = response.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    actionData = JSON.parse(jsonMatch[0]);
+                } else {
+                    throw new Error('No valid JSON found in response');
+                }
+            }
+
+            // Ensure all required fields exist
+            actionData.tasks = actionData.tasks || [];
+            actionData.calendarEvents = actionData.calendarEvents || [];
+            actionData.propertyUpdates = actionData.propertyUpdates || [];
+            actionData.notes = actionData.notes || [];
+
+            console.log(`🤖 Grok action analysis: ${actionData.tasks.length} tasks, ${actionData.calendarEvents.length} events, ${actionData.propertyUpdates.length} updates, ${actionData.notes.length} notes`);
+            
+            return actionData;
+
+        } catch (error) {
+            console.error('❌ Error in email action analysis:', error);
+            return {
+                tasks: [],
+                calendarEvents: [],
+                propertyUpdates: [],
+                notes: []
+            };
+        }
+    }
 }
 
 module.exports = GrokClient;

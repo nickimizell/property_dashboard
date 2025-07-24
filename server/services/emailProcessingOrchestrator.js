@@ -421,21 +421,31 @@ class EmailProcessingOrchestrator {
             }
 
             // Step 9: Generate tasks and calendar events (if property matched)
-            let generatedContent = { tasks: [], calendarEvents: [], notes: [] };
+            let generatedContent = { tasks: [], calendarEvents: [], notes: [], propertyUpdates: [] };
             
-            if (propertyId && documentAnalyses.length > 0) {
-                console.log('\n📅 Step 9: Generating tasks and calendar events...');
+            if (propertyId) {
+                console.log('\n📅 Step 9: Analyzing email for actions and updates...');
                 
                 try {
-                    generatedContent = await this.grokClient.generateTasksAndEvents(
-                        combinedInfo,
-                        documentAnalyses[0]?.analysis, // Use first document analysis
-                        email.subject
-                    );
+                    // Analyze email content for action requests (always, not just with attachments)
+                    generatedContent = await this.grokClient.analyzeEmailForActions({
+                        subject: email.subject,
+                        body: email.text || email.html,
+                        from: email.from.text,
+                        propertyInfo: combinedInfo,
+                        documentAnalysis: documentAnalyses[0]?.analysis || null
+                    });
                     
-                    console.log(`  📋 Generated: ${generatedContent.tasks.length} tasks, ${generatedContent.calendarEvents.length} events, ${generatedContent.notes.length} notes`);
+                    console.log(`  📋 Generated: ${generatedContent.tasks.length} tasks, ${generatedContent.calendarEvents.length} events, ${generatedContent.notes.length} notes, ${generatedContent.propertyUpdates?.length || 0} property updates`);
+                    
+                    // Execute property updates if any
+                    if (generatedContent.propertyUpdates && generatedContent.propertyUpdates.length > 0) {
+                        console.log('\n🔄 Step 9a: Executing property updates...');
+                        await this.executePropertyUpdates(propertyId, generatedContent.propertyUpdates, emailRecord.id);
+                    }
+                    
                 } catch (error) {
-                    console.error('  ❌ Failed to generate tasks and events:', error.message);
+                    console.error('  ❌ Failed to analyze email for actions:', error.message);
                 }
 
                 // Create tasks in database
@@ -531,6 +541,78 @@ class EmailProcessingOrchestrator {
         combined.loanNumbers = [...new Set(combined.loanNumbers)];
 
         return combined;
+    }
+
+    /**
+     * Execute property updates from email analysis
+     */
+    async executePropertyUpdates(propertyId, propertyUpdates, emailQueueId) {
+        console.log(`\n🔄 Executing ${propertyUpdates.length} property updates...`);
+        
+        for (const update of propertyUpdates) {
+            try {
+                console.log(`  🔄 ${update.action}: ${update.field} = ${update.value}`);
+                
+                // Execute the database update
+                let updateQuery = '';
+                let params = [];
+                
+                switch (update.field) {
+                    case 'price':
+                    case 'listing_price':
+                        updateQuery = `UPDATE properties SET listing_price = $1, updated_at = NOW() WHERE id = $2`;
+                        params = [parseFloat(update.value), propertyId];
+                        break;
+                        
+                    case 'status':
+                        updateQuery = `UPDATE properties SET status = $1, updated_at = NOW() WHERE id = $2`;
+                        params = [update.value, propertyId];
+                        break;
+                        
+                    case 'notes':
+                        const timestamp = new Date().toISOString().split('T')[0];
+                        const noteText = `\n---\n[${timestamp}] Email Update from ${update.source}:\n${update.value}`;
+                        updateQuery = `UPDATE properties SET notes = COALESCE(notes, '') || $1, updated_at = NOW() WHERE id = $2`;
+                        params = [noteText, propertyId];
+                        break;
+                        
+                    case 'client_name':
+                        updateQuery = `UPDATE properties SET client_name = $1, updated_at = NOW() WHERE id = $2`;
+                        params = [update.value, propertyId];
+                        break;
+                        
+                    case 'selling_agent':
+                    case 'listing_agent':
+                        updateQuery = `UPDATE properties SET selling_agent = $1, updated_at = NOW() WHERE id = $2`;
+                        params = [update.value, propertyId];
+                        break;
+                        
+                    case 'closing_date':
+                        updateQuery = `UPDATE properties SET closing_date = $1, updated_at = NOW() WHERE id = $2`;
+                        params = [update.value, propertyId];
+                        break;
+                        
+                    default:
+                        console.log(`  ⚠️ Unsupported field update: ${update.field}`);
+                        continue;
+                }
+                
+                if (updateQuery) {
+                    await this.db.query(updateQuery, params);
+                    console.log(`  ✅ Updated ${update.field} successfully`);
+                    
+                    // Log the update in email processing queue
+                    await this.db.query(`
+                        UPDATE email_processing_queue
+                        SET property_updates_made = COALESCE(property_updates_made, 0) + 1
+                        WHERE id = $1
+                    `, [emailQueueId]);
+                }
+                
+            } catch (error) {
+                console.error(`  ❌ Failed to update ${update.field}:`, error.message);
+            }
+        }
     }
 
     /**
