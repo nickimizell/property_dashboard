@@ -205,14 +205,52 @@ class EmailResponder {
             
             // Get detailed action information
             const actionDetails = await this.getActionDetails(emailData.id);
-            variables.document_list = actionDetails.documents.join('\n');
-            variables.task_list = actionDetails.tasks.join('\n');
-            variables.calendar_list = actionDetails.calendarEvents.join('\n');
+            
+            // Format document list with details
+            variables.document_list = actionDetails.documents.length > 0 
+                ? actionDetails.documents.map(doc => `• ${doc}`).join('\n')
+                : '';
+            
+            // Format task list with details
+            variables.task_list = actionDetails.tasks.length > 0 
+                ? actionDetails.tasks.map(task => `• ${task}`).join('\n')
+                : '';
+            
+            // Format calendar events with details
+            variables.calendar_list = actionDetails.calendarEvents.length > 0 
+                ? actionDetails.calendarEvents.map(event => `• ${event}`).join('\n')
+                : '';
+            
+            // Format notes information
+            variables.notes_list = actionDetails.notes.length > 0 
+                ? actionDetails.notes.map(note => `• ${note}`).join('\n')
+                : '';
+            
+            // Create summary counts
+            variables.documents_count = actionDetails.documents.length;
+            variables.tasks_count = actionDetails.tasks.length;
+            variables.events_count = actionDetails.calendarEvents.length;
+            variables.notes_count = actionDetails.notes.length;
+            
+            // Total actions taken
+            variables.total_actions = variables.documents_count + variables.tasks_count + variables.events_count + variables.notes_count;
+            
             variables.additional_actions = this.formatAdditionalActions(actionDetails);
         } else {
             // For property not found emails
             const extractedData = emailData.match_details ? JSON.parse(emailData.match_details) : {};
             variables.searched_addresses = extractedData.searchedAddresses?.join(', ') || 'No addresses found in email';
+            
+            // Add empty action variables
+            variables.document_list = '';
+            variables.task_list = '';
+            variables.calendar_list = '';
+            variables.notes_list = '';
+            variables.documents_count = 0;
+            variables.tasks_count = 0;
+            variables.events_count = 0;
+            variables.notes_count = 0;
+            variables.total_actions = 0;
         }
 
         return variables;
@@ -223,40 +261,88 @@ class EmailResponder {
      */
     async getActionDetails(emailQueueId) {
         try {
-            // Get documents
+            // Get documents with more details
             const docsResult = await this.db.query(`
-                SELECT original_filename, document_type 
+                SELECT 
+                    original_filename, 
+                    document_type,
+                    file_size,
+                    extraction_success,
+                    LENGTH(extracted_text) as text_length
                 FROM email_document_storage 
                 WHERE email_queue_id = $1
+                ORDER BY created_at
             `, [emailQueueId]);
 
-            // Get tasks
+            // Get tasks with more details
             const tasksResult = await this.db.query(`
-                SELECT t.title, t.due_date, t.priority
+                SELECT 
+                    t.title, 
+                    t.due_date, 
+                    t.priority,
+                    t.category,
+                    t.assigned_to,
+                    t.status
                 FROM email_generated_tasks egt
                 JOIN tasks t ON egt.task_id = t.id
                 WHERE egt.email_queue_id = $1
+                ORDER BY t.due_date
             `, [emailQueueId]);
 
-            // Get calendar events
+            // Get calendar events with more details
             const eventsResult = await this.db.query(`
-                SELECT event_title, event_date, event_type
+                SELECT 
+                    event_title, 
+                    event_date, 
+                    event_time,
+                    event_type,
+                    priority,
+                    event_description
                 FROM email_generated_calendar_events
                 WHERE email_queue_id = $1
+                ORDER BY event_date
             `, [emailQueueId]);
 
-            // Get notes
+            // Get notes with details
             const notesResult = await this.db.query(`
-                SELECT note_text, note_type
+                SELECT 
+                    note_text, 
+                    note_type,
+                    created_at
                 FROM email_generated_notes_metadata
                 WHERE email_queue_id = $1
+                ORDER BY created_at DESC
             `, [emailQueueId]);
 
             return {
-                documents: docsResult.rows.map(doc => `📄 ${doc.original_filename} (${doc.document_type || 'document'})`),
-                tasks: tasksResult.rows.map(task => `📋 ${task.title} (Due: ${task.due_date}, Priority: ${task.priority})`),
-                calendarEvents: eventsResult.rows.map(event => `📅 ${event.event_title} (${event.event_date}) - ${event.event_type}`),
-                notes: notesResult.rows.map(note => `📝 ${note.note_text.substring(0, 100)}...`)
+                documents: docsResult.rows.map(doc => {
+                    const size = doc.file_size ? `${Math.round(doc.file_size / 1024)}KB` : 'Unknown size';
+                    const status = doc.extraction_success ? 
+                        (doc.text_length > 0 ? `✅ Text extracted (${doc.text_length} chars)` : '✅ Processed') : 
+                        '⚠️ Processing failed';
+                    return `📄 ${doc.original_filename} (${doc.document_type || 'document'}) - ${size}, ${status}`;
+                }),
+                
+                tasks: tasksResult.rows.map(task => {
+                    const dueDate = task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No due date';
+                    const assignee = task.assigned_to || 'Unassigned';
+                    return `📋 ${task.title} - Due: ${dueDate}, Priority: ${task.priority}, Assigned to: ${assignee}`;
+                }),
+                
+                calendarEvents: eventsResult.rows.map(event => {
+                    const eventDate = event.event_date ? new Date(event.event_date).toLocaleDateString() : 'TBD';
+                    const eventTime = event.event_time || '';
+                    const description = event.event_description ? ` - ${event.event_description.substring(0, 50)}...` : '';
+                    return `📅 ${event.event_title} - ${eventDate} ${eventTime} (${event.event_type})${description}`;
+                }),
+                
+                notes: notesResult.rows.map(note => {
+                    const noteDate = new Date(note.created_at).toLocaleDateString();
+                    const preview = note.note_text.length > 80 ? 
+                        `${note.note_text.substring(0, 80)}...` : 
+                        note.note_text;
+                    return `📝 ${preview} (Added: ${noteDate})`;
+                })
             };
         } catch (error) {
             console.error('❌ Error getting action details:', error);
@@ -322,19 +408,173 @@ class EmailResponder {
     }
 
     /**
-     * Generate fallback email body if template not found
+     * Generate detailed fallback email body if template not found
      */
     generateFallbackBody(responseType, variables) {
         switch (responseType) {
             case 'property_matched_actions_taken':
-                return `Hi ${variables.sender_name},\n\nThank you for your email regarding "${variables.email_subject}".\n\nYour email has been processed and linked to property: ${variables.property_address}\n\nActions taken:\n${variables.additional_actions}\n\nBest regards,\nTransaction Coordinator Team`;
+                return this.generateActionsTakenEmail(variables);
+            
+            case 'property_matched_no_actions':
+                return this.generateNoActionsEmail(variables);
             
             case 'property_not_found':
-                return `Hi ${variables.sender_name},\n\nThank you for your email regarding "${variables.email_subject}".\n\nWe couldn't find a matching property in our system. Please add the property to our dashboard or contact your agent.\n\nDashboard: ${variables.dashboard_url}\n\nBest regards,\nTransaction Coordinator Team`;
+                return this.generatePropertyNotFoundEmail(variables);
+            
+            case 'processing_error':
+                return this.generateProcessingErrorEmail(variables);
             
             default:
                 return `Hi ${variables.sender_name},\n\nThank you for your email. We have received and processed your message.\n\nBest regards,\nTransaction Coordinator Team`;
         }
+    }
+
+    /**
+     * Generate detailed actions taken email
+     */
+    generateActionsTakenEmail(variables) {
+        let email = `Hi ${variables.sender_name},\n\n`;
+        email += `Thank you for your email regarding "${variables.email_subject}".\n\n`;
+        email += `✅ **EMAIL PROCESSED SUCCESSFULLY**\n\n`;
+        email += `**Property:** ${variables.property_address}\n`;
+        email += `**Client:** ${variables.client_name}\n`;
+        email += `**Status:** ${variables.property_status}\n\n`;
+        
+        // Documents section
+        if (variables.document_list && variables.document_list.trim()) {
+            email += `**📄 DOCUMENTS SAVED:**\n`;
+            email += `${variables.document_list}\n\n`;
+        }
+        
+        // Tasks section
+        if (variables.task_list && variables.task_list.trim()) {
+            email += `**📋 TASKS CREATED:**\n`;
+            email += `${variables.task_list}\n\n`;
+        }
+        
+        // Calendar events section
+        if (variables.calendar_list && variables.calendar_list.trim()) {
+            email += `**📅 CALENDAR EVENTS SCHEDULED:**\n`;
+            email += `${variables.calendar_list}\n\n`;
+        }
+        
+        // Property notes section
+        if (variables.additional_actions && variables.additional_actions.includes('note')) {
+            email += `**📝 PROPERTY NOTES UPDATED:**\n`;
+            email += `✅ Summary and key information from your email has been added to the property record\n\n`;
+        }
+        
+        email += `**🔗 QUICK LINKS:**\n`;
+        email += `• View Property: ${variables.property_dashboard_url}\n`;
+        email += `• Dashboard Home: ${variables.dashboard_url}\n\n`;
+        
+        email += `**NEXT STEPS:**\n`;
+        email += `• All created tasks have been assigned to the appropriate team members\n`;
+        email += `• You will receive automatic reminders for upcoming deadlines\n`;
+        email += `• Check the dashboard for real-time updates on this transaction\n\n`;
+        
+        email += `Best regards,\n`;
+        email += `OOTB Properties Transaction Coordinator\n`;
+        email += `Automated Processing System`;
+        
+        return email;
+    }
+
+    /**
+     * Generate no actions taken email
+     */
+    generateNoActionsEmail(variables) {
+        let email = `Hi ${variables.sender_name},\n\n`;
+        email += `Thank you for your email regarding "${variables.email_subject}".\n\n`;
+        email += `✅ **EMAIL RECEIVED & PROCESSED**\n\n`;
+        email += `**Property:** ${variables.property_address}\n`;
+        email += `**Client:** ${variables.client_name}\n`;
+        email += `**Status:** ${variables.property_status}\n\n`;
+        
+        email += `**PROCESSING RESULT:**\n`;
+        email += `• Your email has been successfully linked to the property record\n`;
+        email += `• No immediate actions were required based on the email content\n`;
+        email += `• The message has been logged for future reference\n\n`;
+        
+        email += `**🔗 QUICK LINKS:**\n`;
+        email += `• View Property: ${variables.property_dashboard_url}\n`;
+        email += `• Dashboard Home: ${variables.dashboard_url}\n\n`;
+        
+        email += `If you expected specific actions to be taken, please contact your transaction coordinator directly.\n\n`;
+        
+        email += `Best regards,\n`;
+        email += `OOTB Properties Transaction Coordinator\n`;
+        email += `Automated Processing System`;
+        
+        return email;
+    }
+
+    /**
+     * Generate property not found email
+     */
+    generatePropertyNotFoundEmail(variables) {
+        let email = `Hi ${variables.sender_name},\n\n`;
+        email += `Thank you for your email regarding "${variables.email_subject}".\n\n`;
+        email += `⚠️ **PROPERTY NOT FOUND**\n\n`;
+        
+        email += `**SEARCH ATTEMPTED:**\n`;
+        email += `We searched our system for properties matching:\n`;
+        email += `• Address: ${variables.searched_addresses}\n`;
+        email += `• Email sender: ${variables.sender_name}\n`;
+        email += `• Subject keywords: "${variables.email_subject}"\n\n`;
+        
+        email += `**NEXT STEPS REQUIRED:**\n`;
+        email += `1. Add the property to our system: ${variables.dashboard_url}\n`;
+        email += `2. Ensure the property address matches exactly\n`;
+        email += `3. Contact your assigned agent if you need assistance\n\n`;
+        
+        email += `**MANUAL REVIEW:**\n`;
+        email += `Your email has been forwarded to our team for manual review.\n`;
+        email += `We will follow up within 24 hours to resolve this.\n\n`;
+        
+        email += `**SUPPORT:**\n`;
+        email += `For immediate assistance: ${variables.support_email}\n\n`;
+        
+        email += `Best regards,\n`;
+        email += `OOTB Properties Transaction Coordinator\n`;
+        email += `Automated Processing System`;
+        
+        return email;
+    }
+
+    /**
+     * Generate processing error email
+     */
+    generateProcessingErrorEmail(variables) {
+        let email = `Hi ${variables.sender_name},\n\n`;
+        email += `Thank you for your email regarding "${variables.email_subject}".\n\n`;
+        email += `❌ **PROCESSING ERROR OCCURRED**\n\n`;
+        
+        email += `**WHAT HAPPENED:**\n`;
+        email += `• Your email was received but encountered a processing error\n`;
+        email += `• Our automated system could not complete the standard workflow\n`;
+        email += `• This may be due to complex document formats or system connectivity\n\n`;
+        
+        email += `**IMMEDIATE ACTION TAKEN:**\n`;
+        email += `• Your email has been flagged for manual review\n`;
+        email += `• Our transaction coordinator team has been notified\n`;
+        email += `• Processing will be completed manually within 4 hours\n\n`;
+        
+        email += `**EXPECTED TIMELINE:**\n`;
+        email += `• Manual review: Within 2 hours\n`;
+        email += `• Processing completion: Within 4 hours\n`;
+        email += `• Follow-up confirmation: Within 6 hours\n\n`;
+        
+        email += `**SUPPORT:**\n`;
+        email += `For urgent matters: ${variables.support_email}\n\n`;
+        
+        email += `We apologize for any inconvenience and will ensure your transaction stays on track.\n\n`;
+        
+        email += `Best regards,\n`;
+        email += `OOTB Properties Transaction Coordinator\n`;
+        email += `Automated Processing System`;
+        
+        return email;
     }
 
     /**
