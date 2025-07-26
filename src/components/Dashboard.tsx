@@ -273,9 +273,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ properties, tasks, onPrope
           onClose={() => setShowPropertyForm(false)}
           onSave={async (property) => {
             try {
-              await hybridDataService.createProperty(property);
+              console.log('🏠 Creating property:', property);
+              const newProperty = await hybridDataService.createProperty(property);
+              console.log('✅ Property created successfully:', newProperty);
               onPropertyUpdate();
               setShowPropertyForm(false);
+              
+              // Force a brief delay to ensure state updates
+              setTimeout(() => {
+                console.log('🔄 Triggering property update callback');
+                onPropertyUpdate();
+              }, 100);
             } catch (error) {
               console.error('Failed to create property:', error);
               alert('Failed to create property. Please try again.');

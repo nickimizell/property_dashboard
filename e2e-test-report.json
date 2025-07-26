@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-07-26T16:37:47.848Z",
+  "summary": {
+    "total": 17,
+    "passed": 13,
+    "failed": 4,
+    "successRate": "76%"
+  },
+  "issues": [
+    "Property created successfully",
+    "File upload input not found",
+    "Tasks are displayed in the interface",
+    "Property data persists after page refresh"
+  ],
+  "testData": {
+    "propertyId": null
+  }
+}

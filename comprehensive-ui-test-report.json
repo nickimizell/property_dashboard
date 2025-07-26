@@ -1,0 +1,707 @@
+{
+  "timestamp": "2025-07-26T16:42:41.714Z",
+  "summary": {
+    "totalTasks": 21,
+    "completed": 13,
+    "failed": 8,
+    "successRate": "62%"
+  },
+  "issues": [
+    "Property List - View Properties: Properties list not displayed",
+    "Property Actions - Click Property: No properties to click",
+    "Property Details - Edit Mode: Edit button not found",
+    "Documents - Access Document Section: Documents button not found",
+    "Documents - File Upload Interface: File upload input not found",
+    "Workflow - Access Workflow Tab: Workflow button not found",
+    "Timeline - Access Timeline Tab: Timeline button not found",
+    "Parties - Access Parties Tab: Parties button not found"
+  ],
+  "uiInventory": {
+    "navigation": [
+      {
+        "text": "Dashboard",
+        "type": "button",
+        "className": "px-3 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-700",
+        "href": null
+      },
+      {
+        "text": "Users",
+        "type": "button",
+        "className": "px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1 text-gray-500 hover:text-gray-700",
+        "href": null
+      },
+      {
+        "text": "📧 Email System",
+        "type": "button",
+        "className": "px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1 text-gray-500 hover:text-gray-700",
+        "href": null
+      }
+    ],
+    "buttons": [
+      {
+        "index": 0,
+        "text": "Dashboard",
+        "type": "submit",
+        "className": "px-3 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-700",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 1,
+        "text": "Users",
+        "type": "submit",
+        "className": "px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1 text-gray-500 hover:text-gray-700",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 2,
+        "text": "📧 Email System",
+        "type": "submit",
+        "className": "px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1 text-gray-500 hover:text-gray-700",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 3,
+        "text": "Logout",
+        "type": "submit",
+        "className": "flex items-center space-x-1 text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 4,
+        "text": "",
+        "type": "submit",
+        "className": "p-2 rounded-md transition-colors bg-white text-blue-600 shadow-sm",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 5,
+        "text": "",
+        "type": "submit",
+        "className": "p-2 rounded-md transition-colors text-gray-600 hover:text-gray-900",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 6,
+        "text": "",
+        "type": "submit",
+        "className": "p-2 rounded-md transition-colors text-gray-600 hover:text-gray-900",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 7,
+        "text": "Add Property",
+        "type": "submit",
+        "className": "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 8,
+        "text": "Filters",
+        "type": "submit",
+        "className": "flex items-center space-x-2 px-4 py-2 rounded-md border transition-colors bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 9,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 10,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 11,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 12,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 13,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 14,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 15,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 16,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 17,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 18,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 19,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 20,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 21,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 22,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 23,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 24,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 25,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 26,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 27,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 28,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 29,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 30,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 31,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 32,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 33,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 34,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 35,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 36,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 37,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 38,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 39,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 40,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 41,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 42,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 43,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 44,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 45,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 46,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 47,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 48,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 49,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 50,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 51,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 52,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 53,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 54,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 55,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 56,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 57,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 58,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 59,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 60,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 61,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 62,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 63,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 64,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 65,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 66,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 67,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 68,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 69,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 70,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 71,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 72,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 73,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 74,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 75,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 76,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 77,
+        "text": "Docs",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 78,
+        "text": "Parties",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 79,
+        "text": "Workflow",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      },
+      {
+        "index": 80,
+        "text": "Timeline",
+        "type": "submit",
+        "className": "flex items-center space-x-1 px-2 py-1.5 text-xs bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors",
+        "disabled": false,
+        "visible": true
+      }
+    ],
+    "forms": [],
+    "tables": [],
+    "modals": [],
+    "inputs": [
+      {
+        "index": 0,
+        "type": "text",
+        "name": "",
+        "placeholder": "Search properties by address, client, agent, or notes...",
+        "required": false,
+        "disabled": false
+      }
+    ],
+    "selects": [],
+    "textareas": [],
+    "links": []
+  }
+}
