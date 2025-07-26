@@ -223,7 +223,7 @@ class ActionExecutor {
                 category = 'Closing';
             }
 
-            // Create the task
+            // Create the task using the correct schema
             const taskResult = await this.db.query(
                 `INSERT INTO tasks (
                     property_id, 
@@ -232,9 +232,11 @@ class ActionExecutor {
                     category, 
                     priority, 
                     status,
-                    created_by,
-                    created_at
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+                    task_type,
+                    assigned_to,
+                    due_date,
+                    is_auto_generated
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                 RETURNING id`,
                 [
                     propertyId,
@@ -243,7 +245,10 @@ class ActionExecutor {
                     category,
                     priority,
                     'Pending',
-                    'Email System'
+                    'pre-listing', // Default task type
+                    'Email System', // assigned_to instead of created_by
+                    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 week from now
+                    true // is_auto_generated
                 ]
             );
 
