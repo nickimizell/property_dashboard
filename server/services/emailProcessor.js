@@ -12,8 +12,8 @@ class EmailProcessor {
     constructor(dbPool) {
         this.db = dbPool;
         this.imapConfig = {
-            user: 'transaction.coordinator.agent@gmail.com',
-            password: 'xmvi xvso zblo oewe', // App password from Gmail
+            user: process.env.EMAIL_USER,
+            password: process.env.EMAIL_PASS,
             host: 'imap.gmail.com',
             port: 993,
             tls: true,

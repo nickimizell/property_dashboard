@@ -17,8 +17,8 @@ class EmailResponder {
             port: 587,
             secure: false,
             auth: {
-                user: 'transaction.coordinator.agent@gmail.com',
-                pass: 'xmvi xvso zblo oewe' // App password from existing setup
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
             }
         };
 
@@ -174,7 +174,7 @@ class EmailResponder {
 
         return {
             to: emailData.from_email,
-            replyTo: 'transaction.coordinator.agent@gmail.com',
+            replyTo: process.env.EMAIL_USER,
             subject: subject,
             html: this.formatEmailHTML(body),
             text: this.stripHTML(body),

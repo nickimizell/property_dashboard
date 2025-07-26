@@ -126,8 +126,8 @@ class EmailProcessingOrchestrator {
         const { simpleParser } = require('mailparser');
         
         const imapConfig = {
-            user: 'transaction.coordinator.agent@gmail.com',
-            password: 'xmvi xvso zblo oewe',
+            user: process.env.EMAIL_USER,
+            password: process.env.EMAIL_PASS,
             host: 'imap.gmail.com',
             port: 993,
             tls: true,

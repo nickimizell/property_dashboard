@@ -8,8 +8,8 @@ const EMAIL_CONFIG = {
   port: 587,
   secure: false,
   auth: {
-    user: 'transaction.coordinator.agent@gmail.com',
-    pass: 'xmvi xvso zblo oewe' // App password from Fathom project
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 };
 
