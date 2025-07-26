@@ -278,19 +278,25 @@ class EnhancedDocumentExtractor {
         } catch (error) {
             console.error('❌ Error splitting PDF:', error);
             
-            // Try PDF-plumber fallback first
+            // Try PDF-plumber fallback first (if available)
             console.log('🐍 Trying PDF-plumber fallback...');
-            const plumberResult = await this.extractWithPDFPlumber(buffer, filename);
-            
-            if (plumberResult.success) {
-                console.log(`✅ PDF-plumber extraction successful: ${plumberResult.totalChars} characters`);
-                return {
-                    text: plumberResult.totalText || '',
-                    extractedCount: 1,
-                    extractionTime: Date.now() - startTime,
-                    method: 'pdfplumber_fallback',
-                    metadata: plumberResult.metadata
-                };
+            try {
+                const plumberResult = await this.extractWithPDFPlumber(buffer, filename);
+                
+                if (plumberResult.success) {
+                    console.log(`✅ PDF-plumber extraction successful: ${plumberResult.totalChars} characters`);
+                    return {
+                        text: plumberResult.totalText || '',
+                        extractedCount: 1,
+                        extractionTime: Date.now() - startTime,
+                        method: 'pdfplumber_fallback',
+                        metadata: plumberResult.metadata
+                    };
+                } else {
+                    console.log(`⚠️ PDF-plumber failed: ${plumberResult.error}`);
+                }
+            } catch (plumberError) {
+                console.log(`⚠️ PDF-plumber fallback error: ${plumberError.message}`);
             }
             
             // Final fallback to regular PDF parsing
@@ -356,15 +362,33 @@ class EnhancedDocumentExtractor {
                 });
 
                 python.on('error', (error) => {
+                    console.log('🐍 Python process error:', error.message);
                     resolve({
                         success: false,
                         error: `Failed to start Python script: ${error.message}`
                     });
                 });
 
-                // Send PDF buffer to Python script
-                python.stdin.write(buffer);
-                python.stdin.end();
+                // Handle stdin errors (EPIPE, etc.)
+                python.stdin.on('error', (error) => {
+                    console.log('🐍 Python stdin error:', error.message);
+                    resolve({
+                        success: false,
+                        error: `Python stdin error: ${error.message}`
+                    });
+                });
+
+                // Send PDF buffer to Python script with error handling
+                try {
+                    python.stdin.write(buffer);
+                    python.stdin.end();
+                } catch (writeError) {
+                    console.log('🐍 Error writing to Python script:', writeError.message);
+                    resolve({
+                        success: false,
+                        error: `Error writing to Python script: ${writeError.message}`
+                    });
+                }
 
             } catch (error) {
                 resolve({
@@ -380,7 +404,11 @@ class EnhancedDocumentExtractor {
      */
     async extractPageByPage(buffer) {
         try {
-            const pdfDoc = await PDFDocument.load(buffer, { ignoreEncryption: true });
+            const pdfDoc = await PDFDocument.load(buffer, { 
+                ignoreEncryption: true,
+                capNumbers: false,
+                throwOnInvalidObject: false
+            });
             const pageCount = pdfDoc.getPageCount();
             const pages = [];
 
@@ -404,7 +432,9 @@ class EnhancedDocumentExtractor {
             return pages;
         } catch (error) {
             console.error('Error extracting pages:', error);
-            throw error;
+            // Return empty pages array instead of throwing - let upper layer handle fallback
+            console.log('📋 Returning empty pages array due to extraction error');
+            return [];
         }
     }
 
