@@ -210,18 +210,35 @@ class ActionExecutor {
                 priority = 'High';
             }
 
-            // Determine category
-            let category = 'General';
+            // Determine category (use valid constraint values)
+            let category = 'Property Preparation';
             if (actionItem.toLowerCase().includes('price') || 
                 actionItem.toLowerCase().includes('listing')) {
-                category = 'Listing';
+                category = 'Marketing';
             } else if (actionItem.toLowerCase().includes('contract')) {
-                category = 'Contract';
+                category = 'Contract Review';
             } else if (actionItem.toLowerCase().includes('inspection')) {
-                category = 'Inspection';
+                category = 'Inspections';
             } else if (actionItem.toLowerCase().includes('closing')) {
-                category = 'Closing';
+                category = 'Closing Preparation';
+            } else if (actionItem.toLowerCase().includes('document') || 
+                      actionItem.toLowerCase().includes('upload')) {
+                category = 'Legal & Documentation';
             }
+
+            // Calculate due date (ensure it's never null)
+            const calculateDueDate = () => {
+                try {
+                    const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+                    const dateString = futureDate.toISOString().split('T')[0];
+                    return dateString;
+                } catch (error) {
+                    // Fallback to today's date if calculation fails
+                    return new Date().toISOString().split('T')[0];
+                }
+            };
+
+            const dueDate = calculateDueDate();
 
             // Create the task using the correct schema
             const taskResult = await this.db.query(
@@ -247,7 +264,7 @@ class ActionExecutor {
                     'Pending',
                     'pre-listing', // Default task type
                     'Email System', // assigned_to instead of created_by
-                    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 week from now
+                    dueDate, // Use calculated due date
                     true // is_auto_generated
                 ]
             );
