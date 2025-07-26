@@ -8,6 +8,9 @@ const { PDFDocument } = require('pdf-lib');
 const Tesseract = require('tesseract.js');
 const mammoth = require('mammoth');
 const crypto = require('crypto');
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs').promises;
 
 class EnhancedDocumentExtractor {
     constructor(dbPool, grokClient) {
@@ -183,10 +186,24 @@ class EnhancedDocumentExtractor {
         console.log(`🔄 Splitting multi-document PDF: ${filename}`);
 
         try {
-            // Parse entire PDF
+            // Parse entire PDF with fallback handling
             const fullPDF = await pdfParse(buffer);
-            const pdfDoc = await PDFDocument.load(buffer, { ignoreEncryption: true });
-            const pageCount = pdfDoc.getPageCount();
+            let pdfDoc, pageCount;
+            
+            try {
+                pdfDoc = await PDFDocument.load(buffer, { 
+                    ignoreEncryption: true,
+                    capNumbers: false,
+                    throwOnInvalidObject: false
+                });
+                pageCount = pdfDoc.getPageCount();
+            } catch (pdfLibError) {
+                console.log(`⚠️ PDF-lib failed, using fallback method: ${pdfLibError.message}`);
+                // Fallback: estimate page count from text content
+                const textPages = fullPDF.text.split('\f').filter(page => page.trim().length > 0);
+                pageCount = Math.max(textPages.length, 1);
+                console.log(`📊 Estimated ${pageCount} pages using text analysis fallback`);
+            }
             
             console.log(`📊 PDF has ${pageCount} pages, analyzing for document boundaries...`);
 
@@ -260,8 +277,102 @@ class EnhancedDocumentExtractor {
 
         } catch (error) {
             console.error('❌ Error splitting PDF:', error);
-            throw new Error(`PDF splitting failed: ${error.message}`);
+            
+            // Try PDF-plumber fallback first
+            console.log('🐍 Trying PDF-plumber fallback...');
+            const plumberResult = await this.extractWithPDFPlumber(buffer, filename);
+            
+            if (plumberResult.success) {
+                console.log(`✅ PDF-plumber extraction successful: ${plumberResult.totalChars} characters`);
+                return {
+                    text: plumberResult.totalText || '',
+                    extractedCount: 1,
+                    extractionTime: Date.now() - startTime,
+                    method: 'pdfplumber_fallback',
+                    metadata: plumberResult.metadata
+                };
+            }
+            
+            // Final fallback to regular PDF parsing
+            console.log('📋 Falling back to standard PDF parsing...');
+            try {
+                const fallbackResult = await pdfParse(buffer);
+                return {
+                    text: fallbackResult.text || '',
+                    extractedCount: fallbackResult.text ? 1 : 0,
+                    extractionTime: Date.now() - startTime,
+                    method: 'fallback_standard',
+                    error: `PDF splitting failed: ${error.message}. PDF-plumber also failed: ${plumberResult.error || 'Unknown error'}`
+                };
+            } catch (fallbackError) {
+                throw new Error(`All PDF extraction methods failed. Original error: ${error.message}. Fallback error: ${fallbackError.message}`);
+            }
         }
+    }
+
+    /**
+     * Extract text using PDF-plumber Python script
+     */
+    async extractWithPDFPlumber(buffer, filename) {
+        return new Promise((resolve) => {
+            try {
+                const scriptPath = path.join(__dirname, '../scripts/pdf_plumber_extractor.py');
+                const python = spawn('python3', [scriptPath], {
+                    stdio: ['pipe', 'pipe', 'pipe']
+                });
+
+                let stdout = '';
+                let stderr = '';
+
+                python.stdout.on('data', (data) => {
+                    stdout += data.toString();
+                });
+
+                python.stderr.on('data', (data) => {
+                    stderr += data.toString();
+                });
+
+                python.on('close', (code) => {
+                    if (code === 0) {
+                        try {
+                            const result = JSON.parse(stdout);
+                            resolve(result);
+                        } catch (parseError) {
+                            resolve({
+                                success: false,
+                                error: `JSON parse error: ${parseError.message}`,
+                                stdout,
+                                stderr
+                            });
+                        }
+                    } else {
+                        resolve({
+                            success: false,
+                            error: `Python script exited with code ${code}`,
+                            stderr,
+                            stdout
+                        });
+                    }
+                });
+
+                python.on('error', (error) => {
+                    resolve({
+                        success: false,
+                        error: `Failed to start Python script: ${error.message}`
+                    });
+                });
+
+                // Send PDF buffer to Python script
+                python.stdin.write(buffer);
+                python.stdin.end();
+
+            } catch (error) {
+                resolve({
+                    success: false,
+                    error: `PDF-plumber extraction error: ${error.message}`
+                });
+            }
+        });
     }
 
     /**
