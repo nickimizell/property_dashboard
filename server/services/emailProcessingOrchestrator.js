@@ -8,6 +8,7 @@ const GrokClient = require('./grokClient');
 const EnhancedDocumentExtractor = require('./enhancedDocumentExtractor');
 const PropertyMatcher = require('./propertyMatcher');
 const EmailResponder = require('./emailResponder');
+const ActionExecutor = require('./actionExecutor');
 
 class EmailProcessingOrchestrator {
     constructor(dbPool) {
@@ -19,6 +20,7 @@ class EmailProcessingOrchestrator {
         this.documentExtractor = new EnhancedDocumentExtractor(dbPool, this.grokClient);
         this.propertyMatcher = new PropertyMatcher(dbPool);
         this.emailResponder = new EmailResponder(dbPool);
+        this.actionExecutor = new ActionExecutor(dbPool);
         
         this.isRunning = false;
         this.testingMode = true; // Default to testing mode
@@ -399,8 +401,27 @@ class EmailProcessingOrchestrator {
                 console.log('  ❌ NO MATCH FOUND');
             }
 
-            // Step 8: Store documents in database
-            console.log('\n💾 Step 8: Storing documents...');
+            // Step 8: Execute actions from email (if property matched)
+            let actionResults = { propertyUpdates: [], tasksCreated: [], errors: [] };
+            if (propertyId && classification.extractedInfo?.actionItems?.length > 0) {
+                console.log('\n⚡ Step 8: Executing email actions...');
+                actionResults = await this.actionExecutor.executeEmailActions(
+                    {
+                        ...emailRecord,
+                        grok_analysis: {
+                            extractedInfo: classification.extractedInfo
+                        }
+                    },
+                    propertyId
+                );
+                
+                // Update statistics
+                this.processingStats.tasksCreated += actionResults.tasksCreated.length;
+                console.log(`  ✅ Executed: ${actionResults.propertyUpdates.length} property updates, ${actionResults.tasksCreated.length} tasks created`);
+            }
+
+            // Step 9: Store documents in database
+            console.log('\n💾 Step 9: Storing documents...');
             const storedDocuments = [];
             
             for (const docData of documentAnalyses) {
@@ -482,7 +503,7 @@ class EmailProcessingOrchestrator {
             // Step 11: Send automated response
             console.log('\n📤 Step 11: Sending automated response...');
             try {
-                await this.emailResponder.sendProcessingResponse(emailRecord.id);
+                await this.emailResponder.sendProcessingResponse(emailRecord.id, actionResults);
                 this.processingStats.responsesSet++;
                 console.log('  ✅ Response sent successfully');
             } catch (error) {

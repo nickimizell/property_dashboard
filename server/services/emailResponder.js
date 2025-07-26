@@ -32,8 +32,10 @@ class EmailResponder {
 
     /**
      * Send appropriate response based on processing results
+     * @param {string} emailQueueId - ID of the processed email
+     * @param {Object} actionResults - Results of action execution
      */
-    async sendProcessingResponse(emailQueueId) {
+    async sendProcessingResponse(emailQueueId, actionResults = null) {
         try {
             console.log(`📤 Sending processing response for email ${emailQueueId}`);
             
@@ -54,7 +56,7 @@ class EmailResponder {
             }
 
             // Generate and send response
-            const response = await this.generateResponse(responseType, emailData);
+            const response = await this.generateResponse(responseType, emailData, actionResults);
             const success = await this.sendEmail(response);
             
             if (success) {
@@ -137,7 +139,7 @@ class EmailResponder {
     /**
      * Generate response email content
      */
-    async generateResponse(responseType, emailData) {
+    async generateResponse(responseType, emailData, actionResults = null) {
         const templates = {
             'property_matched_actions_taken': {
                 subject: `✅ Documents & Tasks Created - ${emailData.property_address || 'Property'}`,
@@ -166,7 +168,7 @@ class EmailResponder {
         const dbTemplate = await this.getEmailTemplate(template.templateName);
         
         // Prepare template variables
-        const variables = await this.prepareTemplateVariables(emailData);
+        const variables = await this.prepareTemplateVariables(emailData, actionResults);
         
         // Generate final email content
         const subject = this.fillTemplate(template.subject, variables);
@@ -186,7 +188,7 @@ class EmailResponder {
     /**
      * Prepare template variables for email content
      */
-    async prepareTemplateVariables(emailData) {
+    async prepareTemplateVariables(emailData, actionResults = null) {
         const variables = {
             sender_name: emailData.from_name || emailData.from_email.split('@')[0],
             email_subject: emailData.subject,
@@ -236,6 +238,36 @@ class EmailResponder {
             variables.total_actions = variables.documents_count + variables.tasks_count + variables.events_count + variables.notes_count;
             
             variables.additional_actions = this.formatAdditionalActions(actionDetails);
+            
+            // Add action execution results if available
+            if (actionResults) {
+                // Format property updates that were executed
+                if (actionResults.propertyUpdates && actionResults.propertyUpdates.length > 0) {
+                    variables.property_updates_list = actionResults.propertyUpdates
+                        .filter(update => update.success)
+                        .map(update => {
+                            if (update.field === 'price') {
+                                return `• Price updated from $${update.oldValue?.toLocaleString() || 'N/A'} to $${update.newValue.toLocaleString()}`;
+                            }
+                            return `• ${update.field} updated to: ${update.newValue}`;
+                        }).join('\n');
+                    
+                    variables.property_updates_count = actionResults.propertyUpdates.filter(u => u.success).length;
+                } else {
+                    variables.property_updates_list = '';
+                    variables.property_updates_count = 0;
+                }
+                
+                // Include any errors
+                if (actionResults.errors && actionResults.errors.length > 0) {
+                    variables.action_errors = actionResults.errors.map(err => `• ${err}`).join('\n');
+                } else {
+                    variables.action_errors = '';
+                }
+                
+                // Update total actions to include executed actions
+                variables.total_actions += variables.property_updates_count;
+            }
         } else {
             // For property not found emails
             const extractedData = emailData.match_details ? JSON.parse(emailData.match_details) : {};
@@ -456,6 +488,12 @@ class EmailResponder {
         email += `**Client:** ${variables.client_name}\n`;
         email += `**Status:** ${variables.property_status}\n\n`;
         
+        // Property Updates section
+        if (variables.property_updates_list && variables.property_updates_list.trim()) {
+            email += `**🏠 PROPERTY UPDATES EXECUTED:**\n`;
+            email += `${variables.property_updates_list}\n\n`;
+        }
+        
         // Documents section
         if (variables.document_list && variables.document_list.trim()) {
             email += `**📄 DOCUMENTS SAVED:**\n`;
@@ -478,6 +516,12 @@ class EmailResponder {
         if (variables.additional_actions && variables.additional_actions.includes('note')) {
             email += `**📝 PROPERTY NOTES UPDATED:**\n`;
             email += `✅ Summary and key information from your email has been added to the property record\n\n`;
+        }
+        
+        // Errors section
+        if (variables.action_errors && variables.action_errors.trim()) {
+            email += `**⚠️ ACTIONS THAT COULD NOT BE COMPLETED:**\n`;
+            email += `${variables.action_errors}\n\n`;
         }
         
         email += `**🔗 QUICK LINKS:**\n`;
