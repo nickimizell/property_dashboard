@@ -104,7 +104,7 @@ class ActionExecutor {
         try {
             // Get current property data
             const currentProp = await this.db.query(
-                'SELECT price FROM properties WHERE id = $1',
+                'SELECT current_list_price FROM properties WHERE id = $1',
                 [propertyId]
             );
 
@@ -112,11 +112,11 @@ class ActionExecutor {
                 throw new Error('Property not found');
             }
 
-            const oldPrice = currentProp.rows[0].price;
+            const oldPrice = currentProp.rows[0].current_list_price;
 
             // Update the price
             await this.db.query(
-                'UPDATE properties SET price = $1, updated_at = NOW() WHERE id = $2',
+                'UPDATE properties SET current_list_price = $1, updated_at = NOW() WHERE id = $2',
                 [newPrice, propertyId]
             );
 
@@ -153,10 +153,10 @@ class ActionExecutor {
             
             // Map field names to database columns
             const fieldMap = {
-                'listing_price': 'price',
-                'price': 'price',
+                'listing_price': 'current_list_price',
+                'price': 'current_list_price',
                 'status': 'status',
-                'client_name': 'client',
+                'client_name': 'client_name',
                 'closing_date': 'closing_date',
                 'listing_agent': 'listing_agent',
                 'selling_agent': 'selling_agent'
@@ -169,7 +169,7 @@ class ActionExecutor {
             }
 
             // Special handling for price
-            if (dbField === 'price') {
+            if (dbField === 'current_list_price') {
                 const priceValue = this.parsePrice(value);
                 if (priceValue) {
                     await this.updatePropertyPrice(propertyId, priceValue, emailData, results);
