@@ -1,17 +1,133 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Property, Task } from '../types';
+import { TaskForm } from './TaskForm';
 import { X, Edit, Save, MapPin, User, DollarSign, Calendar, Home, FileText, Plus, TrendingDown, TrendingUp, Clock, CheckCircle2, Cancel } from 'lucide-react';
+
+interface EditableFieldProps {
+  label: string;
+  value: any;
+  field: keyof Property;
+  type?: 'text' | 'number' | 'date' | 'select' | 'textarea';
+  options?: string[];
+  icon?: React.ReactNode;
+  isEditing: boolean;
+  onChange: (value: any) => void;
+}
+
+// Completely isolated EditableField to prevent re-renders
+const EditableField = React.memo<EditableFieldProps>(({ 
+  label, 
+  value, 
+  field, 
+  type = 'text', 
+  options, 
+  icon, 
+  isEditing, 
+  onChange 
+}) => {
+  const [localValue, setLocalValue] = useState(value);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(null);
+
+  // Sync with prop changes only when not editing
+  useEffect(() => {
+    if (!isEditing) {
+      setLocalValue(value);
+    }
+  }, [value, isEditing]);
+
+  const handleChange = useCallback((newValue: any) => {
+    setLocalValue(newValue);
+    onChange(newValue);
+  }, [onChange]);
+
+  const formatDateForInput = (date: string | null) => {
+    if (!date) return '';
+    return new Date(date).toISOString().split('T')[0];
+  };
+
+  if (!isEditing) {
+    if (!value && type !== 'number') return null;
+    
+    return (
+      <div className="flex items-start space-x-3">
+        {icon && <div className="text-gray-400 mt-0.5">{icon}</div>}
+        <div>
+          <p className="text-sm font-medium text-gray-700">{label}</p>
+          <p className="text-sm text-gray-900">
+            {type === 'date' && value ? new Date(value).toLocaleDateString() :
+             type === 'number' && value ? Math.round(value).toLocaleString() :
+             value || 'Not set'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
+        {icon && <div className="text-gray-400">{icon}</div>}
+        <span>{label}</span>
+      </label>
+      {type === 'select' && options ? (
+        <select
+          ref={inputRef as React.RefObject<HTMLSelectElement>}
+          value={localValue || ''}
+          onChange={(e) => handleChange(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          {options.map(option => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+      ) : type === 'textarea' ? (
+        <textarea
+          ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+          value={localValue || ''}
+          onChange={(e) => handleChange(e.target.value)}
+          rows={4}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder={`Enter ${label.toLowerCase()}...`}
+        />
+      ) : (
+        <input
+          ref={inputRef as React.RefObject<HTMLInputElement>}
+          type={type}
+          value={type === 'date' ? formatDateForInput(localValue) : localValue || ''}
+          onChange={(e) => {
+            const newValue = type === 'number' ? (e.target.value ? Number(e.target.value) : null) :
+                            type === 'date' ? (e.target.value || null) :
+                            e.target.value;
+            handleChange(newValue);
+          }}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder={`Enter ${label.toLowerCase()}...`}
+        />
+      )}
+    </div>
+  );
+});
+
+EditableField.displayName = 'EditableField';
 
 interface PropertyDetailProps {
   property: Property;
   onClose: () => void;
   onSave: (property: Property) => void;
+  onTaskCreate?: (task: Omit<Task, 'id'>) => void;
 }
 
-export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClose, onSave }) => {
+export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClose, onSave, onTaskCreate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedProperty, setEditedProperty] = useState<Property>(property);
   const [showTaskForm, setShowTaskForm] = useState(false);
+
+  // Update edited property when prop changes (but not while editing)
+  useEffect(() => {
+    if (!isEditing) {
+      setEditedProperty(property);
+    }
+  }, [property, isEditing]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -60,85 +176,15 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
     setIsEditing(false);
   };
 
-  const updateField = useCallback((field: keyof Property, value: any) => {
-    setEditedProperty(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  // Create stable field update functions
+  const createFieldUpdater = useCallback((field: keyof Property) => {
+    return (value: any) => {
+      setEditedProperty(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    };
   }, []);
-
-  const formatDateForInput = (date: string | null) => {
-    if (!date) return '';
-    return new Date(date).toISOString().split('T')[0];
-  };
-
-  const EditableField = React.memo<{
-    label: string;
-    value: any;
-    field: keyof Property;
-    type?: 'text' | 'number' | 'date' | 'select' | 'textarea';
-    options?: string[];
-    icon?: React.ReactNode;
-  }>(({ label, value, field, type = 'text', options, icon }) => {
-    if (!isEditing) {
-      if (!value && type !== 'number') return null;
-      
-      return (
-        <div className="flex items-start space-x-3">
-          {icon && <div className="text-gray-400 mt-0.5">{icon}</div>}
-          <div>
-            <p className="text-sm font-medium text-gray-700">{label}</p>
-            <p className="text-sm text-gray-900">
-              {type === 'date' && value ? new Date(value).toLocaleDateString() :
-               type === 'number' && value ? Math.round(value).toLocaleString() :
-               value || 'Not set'}
-            </p>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
-          {icon && <div className="text-gray-400">{icon}</div>}
-          <span>{label}</span>
-        </label>
-        {type === 'select' && options ? (
-          <select
-            value={value || ''}
-            onChange={(e) => updateField(field, e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            {options.map(option => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
-        ) : type === 'textarea' ? (
-          <textarea
-            value={value || ''}
-            onChange={(e) => updateField(field, e.target.value)}
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder={`Enter ${label.toLowerCase()}...`}
-          />
-        ) : (
-          <input
-            type={type}
-            value={type === 'date' ? formatDateForInput(value) : value || ''}
-            onChange={(e) => {
-              const newValue = type === 'number' ? (e.target.value ? Number(e.target.value) : null) :
-                              type === 'date' ? (e.target.value || null) :
-                              e.target.value;
-              updateField(field, newValue);
-            }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder={`Enter ${label.toLowerCase()}...`}
-          />
-        )}
-      </div>
-    );
-  });
 
   // Filter tasks based on property status
   const getRelevantTasks = () => {
@@ -164,14 +210,14 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                 <input
                   type="text"
                   value={editedProperty.address}
-                  onChange={(e) => updateField('address', e.target.value)}
+                  onChange={(e) => setEditedProperty(prev => ({ ...prev, address: e.target.value }))}
                   className="text-xl font-semibold text-gray-900 bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none w-full"
                   placeholder="Property address..."
                 />
                 <div className="flex items-center space-x-4">
                   <select
                     value={editedProperty.status}
-                    onChange={(e) => updateField('status', e.target.value)}
+                    onChange={(e) => setEditedProperty(prev => ({ ...prev, status: e.target.value }))}
                     className="px-3 py-1 rounded-full text-sm font-medium border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="Active">Active</option>
@@ -182,7 +228,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                   </select>
                   <select
                     value={editedProperty.propertyType}
-                    onChange={(e) => updateField('propertyType', e.target.value)}
+                    onChange={(e) => setEditedProperty(prev => ({ ...prev, propertyType: e.target.value }))}
                     className="text-sm text-gray-500 border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="Single Family">Single Family</option>
@@ -194,7 +240,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                     <input
                       type="checkbox"
                       checked={editedProperty.isRented || false}
-                      onChange={(e) => updateField('isRented', e.target.checked)}
+                      onChange={(e) => setEditedProperty(prev => ({ ...prev, isRented: e.target.checked }))}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     <span>Rented</span>
@@ -264,17 +310,12 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                 {/* Basic Information */}
                 <div className="space-y-4">
                   <EditableField
-                    label="Address"
-                    value={editedProperty.address}
-                    field="address"
-                    icon={<MapPin className="h-5 w-5" />}
-                  />
-
-                  <EditableField
                     label="Client Name"
                     value={editedProperty.clientName}
                     field="clientName"
                     icon={<User className="h-5 w-5" />}
+                    isEditing={isEditing}
+                    onChange={createFieldUpdater('clientName')}
                   />
 
                   <EditableField
@@ -282,6 +323,8 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                     value={editedProperty.sellingAgent}
                     field="sellingAgent"
                     icon={<User className="h-5 w-5" />}
+                    isEditing={isEditing}
+                    onChange={createFieldUpdater('sellingAgent')}
                   />
 
                   <EditableField
@@ -291,6 +334,8 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                     type="select"
                     options={['Conventional', 'Investor']}
                     icon={<FileText className="h-5 w-5" />}
+                    isEditing={isEditing}
+                    onChange={createFieldUpdater('workflowType')}
                   />
                 </div>
 
@@ -303,6 +348,8 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                       value={editedProperty.loanNumber}
                       field="loanNumber"
                       icon={<FileText className="h-5 w-5" />}
+                      isEditing={isEditing}
+                      onChange={createFieldUpdater('loanNumber')}
                     />
 
                     <EditableField
@@ -311,6 +358,8 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                       field="basisPoints"
                       type="number"
                       icon={<DollarSign className="h-5 w-5" />}
+                      isEditing={isEditing}
+                      onChange={createFieldUpdater('basisPoints')}
                     />
 
                     <EditableField
@@ -319,6 +368,8 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                       field="startingListPrice"
                       type="number"
                       icon={<DollarSign className="h-5 w-5" />}
+                      isEditing={isEditing}
+                      onChange={createFieldUpdater('startingListPrice')}
                     />
 
                     <EditableField
@@ -327,6 +378,8 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                       field="currentListPrice"
                       type="number"
                       icon={<DollarSign className="h-5 w-5" />}
+                      isEditing={isEditing}
+                      onChange={createFieldUpdater('currentListPrice')}
                     />
 
                     <EditableField
@@ -335,6 +388,8 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                       field="underContractPrice"
                       type="number"
                       icon={<DollarSign className="h-5 w-5" />}
+                      isEditing={isEditing}
+                      onChange={createFieldUpdater('underContractPrice')}
                     />
                   </div>
                 </div>
@@ -349,6 +404,8 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                       field="listingDate"
                       type="date"
                       icon={<Calendar className="h-5 w-5" />}
+                      isEditing={isEditing}
+                      onChange={createFieldUpdater('listingDate')}
                     />
 
                     <EditableField
@@ -357,6 +414,8 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                       field="closingDate"
                       type="date"
                       icon={<Calendar className="h-5 w-5" />}
+                      isEditing={isEditing}
+                      onChange={createFieldUpdater('closingDate')}
                     />
 
                     <EditableField
@@ -365,6 +424,8 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                       field="lastPriceReduction"
                       type="date"
                       icon={<Calendar className="h-5 w-5" />}
+                      isEditing={isEditing}
+                      onChange={createFieldUpdater('lastPriceReduction')}
                     />
                   </div>
                 </div>
@@ -378,6 +439,8 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
                     field="notes"
                     type="textarea"
                     icon={<FileText className="h-5 w-5" />}
+                    isEditing={isEditing}
+                    onChange={createFieldUpdater('notes')}
                   />
                 </div>
 
@@ -484,6 +547,19 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
           </div>
         </div>
       </div>
+
+      {/* Task Form Modal */}
+      {showTaskForm && onTaskCreate && (
+        <TaskForm
+          propertyId={property.id}
+          taskType={editedProperty.status === 'Under Contract' || editedProperty.status === 'Pending' ? 'under-contract' : 'pre-listing'}
+          onClose={() => setShowTaskForm(false)}
+          onSave={(task) => {
+            onTaskCreate(task);
+            setShowTaskForm(false);
+          }}
+        />
+      )}
     </div>
   );
 };

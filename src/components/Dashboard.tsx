@@ -306,6 +306,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ properties, tasks, onPrope
               alert('Failed to update property. Please try again.');
             }
           }}
+          onTaskCreate={async (task) => {
+            try {
+              await hybridDataService.createTask(task);
+              onTaskUpdate();
+            } catch (error) {
+              console.error('Failed to create task:', error);
+              alert('Failed to create task. Please try again.');
+            }
+          }}
         />
       )}
 
