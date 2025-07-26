@@ -403,21 +403,32 @@ class EmailProcessingOrchestrator {
 
             // Step 8: Execute actions from email (if property matched)
             let actionResults = { propertyUpdates: [], tasksCreated: [], errors: [] };
+            console.log('\n🔍 Step 8: Checking for action execution...');
+            console.log(`  Property ID: ${propertyId}`);
+            console.log(`  Action Items: ${JSON.stringify(classification.extractedInfo?.actionItems)}`);
+            
             if (propertyId && classification.extractedInfo?.actionItems?.length > 0) {
                 console.log('\n⚡ Step 8: Executing email actions...');
-                actionResults = await this.actionExecutor.executeEmailActions(
-                    {
-                        ...emailRecord,
-                        grok_analysis: {
-                            extractedInfo: classification.extractedInfo
-                        }
-                    },
-                    propertyId
-                );
-                
-                // Update statistics
-                this.processingStats.tasksCreated += actionResults.tasksCreated.length;
-                console.log(`  ✅ Executed: ${actionResults.propertyUpdates.length} property updates, ${actionResults.tasksCreated.length} tasks created`);
+                try {
+                    actionResults = await this.actionExecutor.executeEmailActions(
+                        {
+                            ...emailRecord,
+                            grok_analysis: {
+                                extractedInfo: classification.extractedInfo
+                            }
+                        },
+                        propertyId
+                    );
+                    
+                    // Update statistics
+                    this.processingStats.tasksCreated += actionResults.tasksCreated.length;
+                    console.log(`  ✅ Executed: ${actionResults.propertyUpdates.length} property updates, ${actionResults.tasksCreated.length} tasks created`);
+                } catch (error) {
+                    console.error('  ❌ Action execution failed:', error);
+                    actionResults.errors.push(`Action execution failed: ${error.message}`);
+                }
+            } else {
+                console.log('  ⏭️ Skipping action execution - no property match or no action items');
             }
 
             // Step 9: Store documents in database
