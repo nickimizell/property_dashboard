@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Property, Task } from '../types';
 import { X, Edit, Save, MapPin, User, DollarSign, Calendar, Home, FileText, Plus, TrendingDown, TrendingUp, Clock, CheckCircle2, Cancel } from 'lucide-react';
 
@@ -60,26 +60,26 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
     setIsEditing(false);
   };
 
-  const updateField = (field: keyof Property, value: any) => {
+  const updateField = useCallback((field: keyof Property, value: any) => {
     setEditedProperty(prev => ({
       ...prev,
       [field]: value
     }));
-  };
+  }, []);
 
   const formatDateForInput = (date: string | null) => {
     if (!date) return '';
     return new Date(date).toISOString().split('T')[0];
   };
 
-  const EditableField: React.FC<{
+  const EditableField = React.memo<{
     label: string;
     value: any;
     field: keyof Property;
     type?: 'text' | 'number' | 'date' | 'select' | 'textarea';
     options?: string[];
     icon?: React.ReactNode;
-  }> = ({ label, value, field, type = 'text', options, icon }) => {
+  }>(({ label, value, field, type = 'text', options, icon }) => {
     if (!isEditing) {
       if (!value && type !== 'number') return null;
       
@@ -138,7 +138,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClos
         )}
       </div>
     );
-  };
+  });
 
   // Filter tasks based on property status
   const getRelevantTasks = () => {
