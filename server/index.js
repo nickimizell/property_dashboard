@@ -278,10 +278,47 @@ app.get('/api/tasks', async (req, res) => {
   }
 });
 
+// Helper function to sanitize date fields
+const sanitizeDate = (date) => {
+  if (!date || date === '') return null;
+  return date;
+};
+
+// Helper function to sanitize numeric fields
+const sanitizeNumber = (num) => {
+  if (num === '' || num === undefined || num === null) return null;
+  return Number(num);
+};
+
 // Create property endpoint
 app.post('/api/properties', async (req, res) => {
   try {
     const property = req.body;
+    console.log('🏠 Creating property:', property);
+    
+    // Sanitize data before database insertion
+    const sanitizedData = {
+      address: property.address || '',
+      clientName: property.clientName || '',
+      sellingAgent: property.sellingAgent || '',
+      loanNumber: property.loanNumber || '',
+      basisPoints: sanitizeNumber(property.basisPoints),
+      closingDate: sanitizeDate(property.closingDate),
+      underContractPrice: sanitizeNumber(property.underContractPrice),
+      startingListPrice: sanitizeNumber(property.startingListPrice),
+      currentListPrice: sanitizeNumber(property.currentListPrice),
+      status: property.status || 'Active',
+      propertyType: property.propertyType || 'Single Family',
+      workflowType: property.workflowType || 'Conventional',
+      isRented: Boolean(property.isRented),
+      notes: property.notes || '',
+      coordinatesLat: property.coordinates?.lat || null,
+      coordinatesLng: property.coordinates?.lng || null,
+      listingDate: sanitizeDate(property.listingDate),
+      lastPriceReduction: sanitizeDate(property.lastPriceReduction)
+    };
+
+    console.log('🧹 Sanitized data:', sanitizedData);
     
     const result = await pool.query(`
       INSERT INTO properties (
@@ -292,10 +329,12 @@ app.post('/api/properties', async (req, res) => {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       RETURNING *
     `, [
-      property.address, property.clientName, property.sellingAgent, property.loanNumber, property.basisPoints,
-      property.closingDate, property.underContractPrice, property.startingListPrice, property.currentListPrice,
-      property.status, property.propertyType, property.workflowType || 'Conventional', property.isRented, property.notes, 
-      property.coordinates?.lat, property.coordinates?.lng, property.listingDate, property.lastPriceReduction
+      sanitizedData.address, sanitizedData.clientName, sanitizedData.sellingAgent, 
+      sanitizedData.loanNumber, sanitizedData.basisPoints, sanitizedData.closingDate, 
+      sanitizedData.underContractPrice, sanitizedData.startingListPrice, sanitizedData.currentListPrice,
+      sanitizedData.status, sanitizedData.propertyType, sanitizedData.workflowType, 
+      sanitizedData.isRented, sanitizedData.notes, sanitizedData.coordinatesLat, 
+      sanitizedData.coordinatesLng, sanitizedData.listingDate, sanitizedData.lastPriceReduction
     ]);
 
     // Insert contingency dates if provided
@@ -323,6 +362,31 @@ app.put('/api/properties/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const property = req.body;
+    console.log('✏️ Updating property:', id, property);
+    
+    // Sanitize data before database update (same as create)
+    const sanitizedData = {
+      address: property.address || null,
+      clientName: property.clientName || null,
+      sellingAgent: property.sellingAgent || null,
+      loanNumber: property.loanNumber || null,
+      basisPoints: sanitizeNumber(property.basisPoints),
+      closingDate: sanitizeDate(property.closingDate),
+      underContractPrice: sanitizeNumber(property.underContractPrice),
+      startingListPrice: sanitizeNumber(property.startingListPrice),
+      currentListPrice: sanitizeNumber(property.currentListPrice),
+      status: property.status || null,
+      propertyType: property.propertyType || null,
+      workflowType: property.workflowType || null,
+      isRented: property.isRented !== undefined ? Boolean(property.isRented) : null,
+      notes: property.notes || null,
+      coordinatesLat: property.coordinates?.lat || null,
+      coordinatesLng: property.coordinates?.lng || null,
+      listingDate: sanitizeDate(property.listingDate),
+      lastPriceReduction: sanitizeDate(property.lastPriceReduction)
+    };
+
+    console.log('🧹 Sanitized update data:', sanitizedData);
     
     const result = await pool.query(`
       UPDATE properties SET
@@ -348,10 +412,12 @@ app.put('/api/properties/:id', async (req, res) => {
       WHERE id = $19
       RETURNING *
     `, [
-      property.address, property.clientName, property.sellingAgent, property.loanNumber, property.basisPoints,
-      property.closingDate, property.underContractPrice, property.startingListPrice, property.currentListPrice,
-      property.status, property.propertyType, property.workflowType, property.isRented, property.notes,
-      property.coordinates?.lat, property.coordinates?.lng, property.listingDate, property.lastPriceReduction, id
+      sanitizedData.address, sanitizedData.clientName, sanitizedData.sellingAgent, 
+      sanitizedData.loanNumber, sanitizedData.basisPoints, sanitizedData.closingDate, 
+      sanitizedData.underContractPrice, sanitizedData.startingListPrice, sanitizedData.currentListPrice,
+      sanitizedData.status, sanitizedData.propertyType, sanitizedData.workflowType, 
+      sanitizedData.isRented, sanitizedData.notes, sanitizedData.coordinatesLat, 
+      sanitizedData.coordinatesLng, sanitizedData.listingDate, sanitizedData.lastPriceReduction, id
     ]);
 
     if (result.rows.length === 0) {
