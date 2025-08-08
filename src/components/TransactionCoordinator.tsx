@@ -36,6 +36,7 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
   const [uploadCategory, setUploadCategory] = useState('');
   const [uploadNotes, setUploadNotes] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Party management state
@@ -126,13 +127,22 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
   }, [property.id]);
 
   // Document upload handlers
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !uploadCategory) return;
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedFile || !uploadCategory) {
+      showNotification('error', 'Please select a file and category before uploading.');
+      return;
+    }
     
     setUploading(true);
     try {
-      await apiService.uploadDocument(property.id, file, uploadCategory, uploadNotes);
+      await apiService.uploadDocument(property.id, selectedFile, uploadCategory, uploadNotes);
       
       // Refresh documents
       const token = localStorage.getItem('auth_token');
@@ -143,13 +153,14 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
       setTransactionData(prev => ({ ...prev, documents }));
       
       // Show success message
-      showNotification('success', `Document "${file.name}" uploaded successfully to ${uploadCategory}`);
+      showNotification('success', `Document "${selectedFile.name}" uploaded successfully to ${uploadCategory}`);
       
       // Reset form after a brief delay
       setTimeout(() => {
         setShowUploadModal(false);
         setUploadCategory('');
         setUploadNotes('');
+        setSelectedFile(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
       }, 1500);
     } catch (err) {
@@ -711,10 +722,15 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
                   <input
                     ref={fileInputRef}
                     type="file"
-                    onChange={handleFileUpload}
+                    onChange={handleFileSelect}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                   />
+                  {selectedFile && (
+                    <p className="mt-2 text-sm text-gray-600">
+                      Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
+                    </p>
+                  )}
                 </div>
                 
                 <div>
@@ -734,6 +750,8 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
                     setShowUploadModal(false);
                     setUploadCategory('');
                     setUploadNotes('');
+                    setSelectedFile(null);
+                    if (fileInputRef.current) fileInputRef.current.value = '';
                   }}
                   className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
                   disabled={uploading}
@@ -741,11 +759,11 @@ export const TransactionCoordinator: React.FC<TransactionCoordinatorProps> = ({
                   Cancel
                 </button>
                 <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={!uploadCategory || uploading}
+                  onClick={handleFileUpload}
+                  disabled={!uploadCategory || !selectedFile || uploading}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {uploading ? 'Uploading...' : 'Select & Upload'}
+                  {uploading ? 'Uploading...' : 'Upload Document'}
                 </button>
               </div>
             </div>
